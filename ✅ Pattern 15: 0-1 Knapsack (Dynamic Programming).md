@@ -53,40 +53,46 @@ In this approach, we try to solve the bigger problem by recursively finding the 
 
 We’ll see this technique in our example of Fibonacci numbers. First, let’s see the non-DP recursive solution for finding the nth Fibonacci number:
 
-```js
-function calculateFibonacci(n) {
-  if (n < 2) return n;
+```java
+public class Fibonacci {
+  public static int calculateFibonacci(int n) {
+    if (n < 2) return n;
+    return calculateFibonacci(n - 1) + calculateFibonacci(n - 2);
+  }
 
-  return calculateFibonacci(n - 1) + calculateFibonacci(n - 2);
+  public static void main(String[] args) {
+    System.out.println("5th Fibonacci is ---> " + calculateFibonacci(5));
+    System.out.println("6th Fibonacci is ---> " + calculateFibonacci(6));
+    System.out.println("7th Fibonacci is ---> " + calculateFibonacci(7));
+  }
 }
-
-console.log(`5th Fibonacci is ---> ${calculateFibonacci(5)}`);
-console.log(`6th Fibonacci is ---> ${calculateFibonacci(6)}`);
-console.log(`7th Fibonacci is ---> ${calculateFibonacci(7)}`);
 ```
 
 As we saw above, this problem shows the overlapping subproblems pattern, so let’s make use of <b>Memoization</b> here. We can use an array to store the already solved subproblems
 
-```js
-function calculateFibonacci(n) {
-  const memoize = [];
+```java
+public class Fibonacci {
+  public static int calculateFibonacci(int n) {
+    int[] memoize = new int[n + 1];
+    return fib(memoize, n);
+  }
 
-  function fib(n) {
+  private static int fib(int[] memoize, int n) {
     if (n < 2) return n;
 
     // if we have already solved this subproblem, simply return the result from the cache
-    if (memoize[n]) return memoize[n];
+    if (memoize[n] != 0) return memoize[n];
 
-    memoize[n] = fib(n - 1) + fib(n - 2);
+    memoize[n] = fib(memoize, n - 1) + fib(memoize, n - 2);
     return memoize[n];
   }
 
-  return fib(n);
+  public static void main(String[] args) {
+    System.out.println("5th Fibonacci is ---> " + calculateFibonacci(5));
+    System.out.println("6th Fibonacci is ---> " + calculateFibonacci(6));
+    System.out.println("7th Fibonacci is ---> " + calculateFibonacci(7));
+  }
 }
-
-console.log(`5th Fibonacci is ---> ${calculateFibonacci(5)}`);
-console.log(`6th Fibonacci is ---> ${calculateFibonacci(6)}`);
-console.log(`7th Fibonacci is ---> ${calculateFibonacci(7)}`);
 ```
 
 ### Bottom-up with Tabulation
@@ -99,18 +105,25 @@ Let’s apply <b>Tabulation</b> to our example of Fibonacci numbers. Since we kn
 
 Here is the code for our <b>bottom-up dynamic programming</b> approach:
 
-```js
-function calculateFibonacci(n) {
-  const dp = [0, 1];
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2];
+```java
+public class Fibonacci {
+  public static int calculateFibonacci(int n) {
+    if (n == 0) return 0;
+    int[] dp = new int[n + 1];
+    dp[0] = 0;
+    dp[1] = 1;
+    for (int i = 2; i <= n; i++) {
+      dp[i] = dp[i - 1] + dp[i - 2];
+    }
+    return dp[n];
   }
-  return dp[n];
-}
 
-console.log(`5th Fibonacci is ---> ${calculateFibonacci(5)}`);
-console.log(`6th Fibonacci is ---> ${calculateFibonacci(6)}`);
-console.log(`7th Fibonacci is ---> ${calculateFibonacci(7)}`);
+  public static void main(String[] args) {
+    System.out.println("5th Fibonacci is ---> " + calculateFibonacci(5));
+    System.out.println("6th Fibonacci is ---> " + calculateFibonacci(6));
+    System.out.println("7th Fibonacci is ---> " + calculateFibonacci(7));
+  }
+}
 ```
 
 <b>In this course, we will always start with a brute-force recursive solution, which is the best way to start solving any DP problem!</b> Once we have a recursive solution then we will apply <i>memoization</i> and Tabulation techniques.
@@ -169,57 +182,37 @@ All <b>green boxes</b> have a total weight that is less than or equal to the cap
 
 ### Brute-Force Solution
 
-```js
-function solveKnapsack(profits, weights, capacity) {
-  function knapsackRecursive(profits, wights, capacity, currIndex) {
-    //check base case
-    if (capacity <= 0 || currIndex >= profits.length) return 0;
-
-    //recursive call after choosing the element at currIndex
-    // create a new set which INCLUDES item at currIndex if the total weight does not exceed the capacity, and
-    let currentProfit = 0;
-
-    if (weights[currIndex] <= capacity) {
-      currentProfit =
-        profits[currIndex] +
-        knapsackRecursive(
-          profits,
-          weights,
-          capacity - weights[currIndex],
-          currIndex + 1
-        );
-    }
-
-    // recursively process the remaining capacity and items
-    // WITHOUT item at currIndex
-    let currentProfitMinusIndexItem = knapsackRecursive(
-      profits,
-      weights,
-      capacity,
-      currIndex + 1
-    );
-
-    // return the set from the above two sets with higher profit
-    return Math.max(currentProfit, currentProfitMinusIndexItem);
+```java
+public class Knapsack {
+  public int solveKnapsack(int[] profits, int[] weights, int capacity) {
+    return this.knapsackRecursive(profits, weights, capacity, 0);
   }
 
-  return knapsackRecursive(profits, weights, capacity, 0);
-}
+  private int knapsackRecursive(int[] profits, int[] weights, int capacity, int currIndex) {
+    // base case
+    if (capacity <= 0 || currIndex >= profits.length) return 0;
 
-console.log(
-  `Total knapsack profit: ---> $${solveKnapsack(
-    [1, 6, 10, 16],
-    [1, 2, 3, 5],
-    7
-  )}`
-);
-console.log(
-  `Total knapsack profit: ---> $${solveKnapsack(
-    [1, 6, 10, 16],
-    [1, 2, 3, 5],
-    6
-  )}`
-);
+    // recursive call after choosing the element at currIndex
+    int profit1 = 0;
+    if (weights[currIndex] <= capacity) {
+      profit1 = profits[currIndex] + 
+        knapsackRecursive(profits, weights, capacity - weights[currIndex], currIndex + 1);
+    }
+
+    // recursive call after excluding the element at currIndex
+    int profit2 = knapsackRecursive(profits, weights, capacity, currIndex + 1);
+
+    return Math.max(profit1, profit2);
+  }
+
+  public static void main(String[] args) {
+    Knapsack ks = new Knapsack();
+    int[] profits = {1, 6, 10, 16};
+    int[] weights = {1, 2, 3, 5};
+    System.out.println("Total knapsack profit: ---> $" + ks.solveKnapsack(profits, weights, 7));
+    System.out.println("Total knapsack profit: ---> $" + ks.solveKnapsack(profits, weights, 6));
+  }
+}
 ```
 
 #### Time & Space Complexity
@@ -241,69 +234,31 @@ Since we have two changing values (`capacity` and `currIndex`) in our recursive 
 
 Here is the code with <b>memoization</b>
 
-```js
-function solveKnapsack(profits, weights, capacity) {
-  const memo = [];
-
-  function knapsackRecursive(profits, weights, capacity, currIndex) {
-    //check base case
-    if (capacity <= 0 || currIndex >= profits.length) return 0;
-
-    memo[currIndex] = memo[currIndex] || [];
-
-    if (typeof memo[currIndex][capacity] !== 'undefined') {
-      return memo[currIndex][capacity];
-    }
-
-    //recursive call after choosing the element at currIndex
-    // create a new set which INCLUDES item at currIndex if the total weight does not exceed the capacity, and
-    let currentProfit = 0;
-
-    if (weights[currIndex] <= capacity) {
-      currentProfit =
-        profits[currIndex] +
-        knapsackRecursive(
-          profits,
-          weights,
-          capacity - weights[currIndex],
-          currIndex + 1
-        );
-    }
-
-    // recursively process the remaining capacity and items
-    // WITHOUT item at currIndex
-    let currentProfitMinusIndexItem = knapsackRecursive(
-      profits,
-      weights,
-      capacity,
-      currIndex + 1
-    );
-
-    // return the set from the above two sets with higher profit
-    memo[currIndex][capacity] = Math.max(
-      currentProfit,
-      currentProfitMinusIndexItem
-    );
-    return memo[currIndex][capacity];
+```java
+public class Knapsack {
+  public int solveKnapsack(int[] profits, int[] weights, int capacity) {
+    Integer[][] memo = new Integer[profits.length][capacity + 1];
+    return this.knapsackRecursive(memo, profits, weights, capacity, 0);
   }
 
-  return knapsackRecursive(profits, weights, capacity, 0, memo);
-}
+  private int knapsackRecursive(Integer[][] memo, int[] profits, int[] weights, int capacity, int currIndex) {
+    // base case
+    if (capacity <= 0 || currIndex >= profits.length) return 0;
 
-console.log(
-  `Total knapsack profit: ---> $${solveKnapsack(
-    [1, 6, 10, 16],
-    [1, 2, 3, 5],
-    7
-  )}`
-);
-console.log(
-  `Total knapsack profit: ---> $${solveKnapsack(
-    [1, 6, 10, 16],
-    [1, 2, 3, 5],
-    6
-  )}`
-);
+    if (memo[currIndex][capacity] != null) return memo[currIndex][capacity];
+
+    int profit1 = 0;
+    if (weights[currIndex] <= capacity) {
+      profit1 = profits[currIndex] + 
+        knapsackRecursive(memo, profits, weights, capacity - weights[currIndex], currIndex + 1);
+    }
+
+    int profit2 = knapsackRecursive(memo, profits, weights, capacity, currIndex + 1);
+
+    memo[currIndex][capacity] = Math.max(profit1, profit2);
+    return memo[currIndex][capacity];
+  }
+}
 ```
 
 #### Time & Space Complexity
@@ -324,63 +279,34 @@ Finally, our optimal solution will be maximum of the above two values:
 
 `dp[i][c] = max (dp[i-1][c], profit[i] + dp[i-1][c-weight[i]])`
 
-```js
-function solveKnapsack(profits, weights, capacity) {
-  //bottom-up dynamic programming approach
-  const n = profits.length;
+```java
+public class Knapsack {
+  public int solveKnapsack(int[] profits, int[] weights, int capacity) {
+    int n = profits.length;
+    if (capacity <= 0 || n == 0 || weights.length != n) return 0;
 
-  if (capacity <= 0 || n == 0 || weights.length != n) return 0;
+    int[][] dp = new int[n][capacity + 1];
 
-  const dp = Array(n)
-    .fill(0)
-    .map(() => Array(capacity + 1).fill(0));
+    // populate the capacity=0 columns
+    for (int i = 0; i < n; i++) dp[i][0] = 0;
 
-  //populate the capacity=0 columns; with 0 capacity we have 0 profit
-  for (let i = 0; i < n; i++) {
-    dp[i][0] = 0;
-  }
-
-  //if we have only one weight, we will take it if it is not more than the capacity
-  for (let c = 0; c <= capacity; c++) {
-    if (weights[0] <= c) {
-      dp[0][c] = profits[0];
+    // if we have only one weight, we will take it if it is not more than the capacity
+    for (int c = 0; c <= capacity; c++) {
+      if (weights[0] <= c) dp[0][c] = profits[0];
     }
-  }
 
-  //process all sub-arrays for all the capacities
-  for (let i = 1; i < n; i++) {
-    for (let c = 1; c <= capacity; c++) {
-      let profitWithI = 0;
-      let profitMinusI = 0;
-      //include the item, if its not more than the capacity
-      if (weights[i] <= c) profitWithI = profits[i] + dp[i - 1][c - weights[i]];
-
-      //exclude the item
-      profitMinusI = dp[i - 1][c];
-
-      //take the maximum
-      dp[i][c] = Math.max(profitWithI, profitMinusI);
-      // console.log(dp)
+    // process all sub-arrays for all the capacities
+    for (int i = 1; i < n; i++) {
+      for (int c = 1; c <= capacity; c++) {
+        int profit1 = 0, profit2 = 0;
+        if (weights[i] <= c) profit1 = profits[i] + dp[i - 1][c - weights[i]];
+        profit2 = dp[i - 1][c];
+        dp[i][c] = Math.max(profit1, profit2);
+      }
     }
+    return dp[n - 1][capacity];
   }
-  //maximum profit with be at the bottom-right corner
-  return dp[n - 1][capacity];
 }
-
-console.log(
-  `Total knapsack profit: ---> $${solveKnapsack(
-    [1, 6, 10, 16],
-    [1, 2, 3, 5],
-    7
-  )}`
-);
-console.log(
-  `Total knapsack profit: ---> $${solveKnapsack(
-    [1, 6, 10, 16],
-    [1, 2, 3, 5],
-    6
-  )}`
-);
 ```
 
 #### Time & Space Complexity
@@ -406,166 +332,165 @@ Let’s understand this from the above example:
 
 Let’s write a function to print the set of items included in the <b>knapsack</b>.
 
-```js
-function solveKnapsack(profits, weights, capacity) {
-  //bottom-up dynamic programming approach
-  const n = profits.length;
+```java
+public class Knapsack {
 
-  if (capacity <= 0 || n == 0 || weights.length != n) return 0;
+    public int solveKnapsack(int[] profits, int[] weights, int capacity) {
+        // bottom-up dynamic programming approach
+        int n = profits.length;
 
-  const dp = Array(n)
-    .fill(0)
-    .map(() => Array(capacity + 1).fill(0));
+        if (capacity <= 0 || n == 0 || weights.length != n) {
+            return 0;
+        }
 
-  //populate the capacity=0 columns; with 0 capacity we have 0 profit
-  for (let i = 0; i < n; i++) {
-    dp[i][0] = 0;
-  }
+        int[][] dp = new int[n][capacity + 1];
 
-  //if we have only one weight, we will take it if it is not more than the capacity
-  for (let c = 0; c <= capacity; c++) {
-    if (weights[0] <= c) {
-      dp[0][c] = profits[0];
+        // populate the capacity=0 columns; with 0 capacity we have 0 profit
+        for (int i = 0; i < n; i++) {
+            dp[i][0] = 0;
+        }
+
+        // if we have only one weight, we will take it if it is not more than the capacity
+        for (int c = 0; c <= capacity; c++) {
+            if (weights[0] <= c) {
+                dp[0][c] = profits[0];
+            }
+        }
+
+        // process all sub-arrays for all the capacities
+        for (int i = 1; i < n; i++) {
+            for (int c = 1; c <= capacity; c++) {
+                int profitWithI = 0;
+                int profitMinusI = 0;
+
+                // include the item, if its not more than the capacity
+                if (weights[i] <= c) {
+                    profitWithI = profits[i] + dp[i - 1][c - weights[i]];
+                }
+
+                // exclude the item
+                profitMinusI = dp[i - 1][c];
+
+                // take the maximum
+                dp[i][c] = Math.max(profitWithI, profitMinusI);
+            }
+        }
+
+        // **function to print the set of items included in the knapsack**
+        printSelectedElements(dp, weights, profits, capacity);
+
+        // maximum profit will be at the bottom-right corner
+        return dp[n - 1][capacity];
     }
-  }
 
-  //process all sub-arrays for all the capacities
-  for (let i = 1; i < n; i++) {
-    for (let c = 1; c <= capacity; c++) {
-      let profitWithI = 0;
-      let profitMinusI = 0;
-      //include the item, if its not more than the capacity
-      if (weights[i] <= c) profitWithI = profits[i] + dp[i - 1][c - weights[i]];
+    private void printSelectedElements(int[][] dp, int[] weights, int[] profits, int capacity) {
+        StringBuilder selectedWeights = new StringBuilder();
+        int totalProfit = dp[weights.length - 1][capacity];
+        int remainingCapacity = capacity;
 
-      //exclude the item
-      profitMinusI = dp[i - 1][c];
+        for (int i = weights.length - 1; i > 0; i--) {
+            if (totalProfit != dp[i - 1][remainingCapacity]) {
+                selectedWeights.insert(0, "{" + weights[i] + "lbs @ $" + profits[i] + "}");
+                remainingCapacity -= weights[i];
+                totalProfit -= profits[i];
+            }
+        }
 
-      //take the maximum
-      dp[i][c] = Math.max(profitWithI, profitMinusI);
+        if (totalProfit != 0) {
+            selectedWeights.insert(0, weights[0] + " ");
+        }
+
+        System.out.println("Selected weights : " + selectedWeights + 
+                           " with Total knapsack profit of ---> $ " + dp[weights.length - 1][capacity]);
     }
-  }
 
-  //**function to print the set of items included in the knapsack**//
-  let selectedWeights = '';
-  let totalProfit = dp[weights.length - 1][capacity];
-  let remainingCapacity = capacity;
-  for (let i = weights.length - 1; i > 0; i--) {
-    if (totalProfit != dp[i - 1][remainingCapacity]) {
-      selectedWeights = `{${weights[i]}lbs @ $${profits[i]}}${selectedWeights}`;
-      remainingCapacity -= weights[i];
-      totalProfit -= profits[i];
+    public static void main(String[] args) {
+        Knapsack ks = new Knapsack();
+        int[] profits = {1, 6, 10, 16};
+        int[] weights = {1, 2, 3, 5};
+        
+        System.out.println("Total knapsack profit: ---> $" + ks.solveKnapsack(profits, weights, 7));
+        System.out.println("Total knapsack profit: ---> $" + ks.solveKnapsack(profits, weights, 6));
     }
-  }
-
-  if (totalProfit != 0) selectedWeights = `${weights[0]} ${selectedWeights}`;
-
-  console.log(
-    `Selected weights : ${selectedWeights} with Total knapsack profit of ---> $ ${
-      dp[n - 1][capacity]
-    }`
-  );
-
-  //maximum profit with be at the bottom-right corner
-  return dp[n - 1][capacity];
 }
-
-console.log(
-  `Total knapsack profit: ---> $${solveKnapsack(
-    [1, 6, 10, 16],
-    [1, 2, 3, 5],
-    7
-  )}`
-);
-console.log(
-  `Total knapsack profit: ---> $${solveKnapsack(
-    [1, 6, 10, 16],
-    [1, 2, 3, 5],
-    6
-  )}`
-);
 ```
 
 ### Challenge
 
 Can we improve our <b>bottom-up DP</b> solution even further? Can you find an algorithm that has `O(C)` space complexity?
 
-```js
-function solveKnapsack(profits, weights, capacity) {
-  //optimal O(C) bottom-up dynamic programming approach
-  const n = profits.length;
+```java
+public class Knapsack {
+    public int solveKnapsack(int[] profits, int[] weights, int capacity) {
+        // optimal O(C) bottom-up dynamic programming approach
+        int n = profits.length;
 
-  if (capacity <= 0 || n == 0 || weights.length != n) return 0;
+        if (capacity <= 0 || n == 0 || weights.length != n) return 0;
 
-  //we only need one previous row to find the optimal solutin,
-  //overall we need 2 rows
-  //the above solution is similar to the previous solution
-  //the only difference is that
-  //we use i%2 instead of i and (i-1)%2 instead of i-1
-  const dp = Array(2)
-    .fill(0)
-    .map(() => Array(capacity + 1).fill(0));
+        // we only need one previous row to find the optimal solution,
+        // overall we need 2 rows
+        // we use i%2 instead of i and (i-1)%2 instead of i-1
+        int[][] dp = new int[2][capacity + 1];
 
-  //if we have only one weight, we will take it if it is not more than the capacity
-  for (let c = 0; c <= capacity; c++) {
-    if (weights[0] <= c) {
-      dp[0][c] = dp[1][c] = profits[0];
+        // if we have only one weight, we will take it if it is not more than the capacity
+        for (int c = 0; c <= capacity; c++) {
+            if (weights[0] <= c) {
+                dp[0][c] = dp[1][c] = profits[0];
+            }
+        }
+
+        // process all sub-arrays for all the capacities
+        for (int i = 1; i < n; i++) {
+            for (int c = 1; c <= capacity; c++) {
+                int profitWithI = 0;
+                int profitMinusI = 0;
+
+                // include the item, if its not more than the capacity
+                if (weights[i] <= c) {
+                    profitWithI = profits[i] + dp[(i - 1) % 2][c - weights[i]];
+                }
+
+                // exclude the item
+                profitMinusI = dp[(i - 1) % 2][c];
+
+                // take the maximum
+                dp[i % 2][c] = Math.max(profitWithI, profitMinusI);
+            }
+        }
+
+        // **function to print the set of items included in the knapsack**
+        StringBuilder selectedWeights = new StringBuilder();
+        int totalProfit = dp[(n - 1) % 2][capacity];
+        int remainingCapacity = capacity;
+
+        for (int i = n - 1; i > 0; i--) {
+            if (totalProfit != dp[(i - 1) % 2][remainingCapacity]) {
+                selectedWeights.insert(0, "{" + weights[i] + "lbs @ $" + profits[i] + "}");
+                remainingCapacity -= weights[i];
+                totalProfit -= profits[i];
+            }
+        }
+
+        if (totalProfit != 0) {
+            selectedWeights.insert(0, weights[0] + " ");
+        }
+
+        System.out.println("Selected weights : " + selectedWeights + 
+                           " with Total knapsack profit of ---> $ " + dp[(n - 1) % 2][capacity]);
+
+        // maximum profit will be at the bottom-right corner (last processed row)
+        return dp[(n - 1) % 2][capacity];
     }
-  }
 
-  //process all sub-arrays for all the capacities
-  for (let i = 1; i < n; i++) {
-    for (let c = 1; c <= capacity; c++) {
-      let profitWithI = 0;
-      let profitMinusI = 0;
-      //include the item, if its not more than the capacity
-      if (weights[i] <= c)
-        profitWithI = profits[i] + dp[(i - 1) % 2][c - weights[i]];
+    public static void main(String[] args) {
+        Knapsack ks = new Knapsack();
+        int[] profits = {1, 6, 10, 16};
+        int[] weights = {1, 2, 3, 5};
 
-      //exclude the item
-      profitMinusI = dp[(i - 1) % 2][c];
-
-      //take the maximum
-      dp[i % 2][c] = Math.max(profitWithI, profitMinusI);
+        System.out.println("Total knapsack profit: ---> $" + ks.solveKnapsack(profits, weights, 7));
+        System.out.println("Total knapsack profit: ---> $" + ks.solveKnapsack(profits, weights, 6));
     }
-  }
-  //**function to print the set of items included in the knapsack**
-  let selectedWeights = '';
-  let totalProfit = dp[(weights.length - 1) % 2][capacity];
-  let remainingCapacity = capacity;
-  for (let i = weights.length - 1; i > 0; i--) {
-    if (totalProfit != dp[(i - 1) % 2][remainingCapacity]) {
-      selectedWeights = `{${weights[i]}lbs @ $${profits[i]}}${selectedWeights}`;
-      remainingCapacity -= weights[i];
-      totalProfit -= profits[i];
-    }
-  }
-
-  if (totalProfit != 0) selectedWeights = `${weights[0]} ${selectedWeights}`;
-
-  console.log(
-    `Selected weights : ${selectedWeights} with Total knapsack profit of ---> $ ${
-      dp[(n - 1) % 2][capacity]
-    }`
-  );
-
-  //maximum profit with be at the bottom-right corner
-  return dp[(n - 1) % 2][capacity];
 }
-
-console.log(
-  `Total knapsack profit: ---> $${solveKnapsack(
-    [1, 6, 10, 16],
-    [1, 2, 3, 5],
-    7
-  )}`
-);
-console.log(
-  `Total knapsack profit: ---> $${solveKnapsack(
-    [1, 6, 10, 16],
-    [1, 2, 3, 5],
-    6
-  )}`
-);
 ```
 
 The solution above is similar to the previous solution; the only difference is that we use `i%2` instead of `i` and `(i-1)%2` instead of `i-1`. This solution has a <b>space complexity</b> of `O(2*C) = O(C)`, where `C` is the knapsack’s maximum capacity.
@@ -581,78 +506,62 @@ Since our inner loop is iterating over `c:0-->capacity`, let’s see how this mi
 
 To solve the second case, we can change our inner loop to process in the reverse direction: `c:capacity-->0`. This will ensure that whenever we change a value in `dp[]`, we will not need it again in the current iteration.
 
-```js
-function solveKnapsack(profits, weights, capacity) {
-  //space optimization solution, O(C) bottom-up dynamic programming approach
-  const n = profits.length;
+```java
+public class Knapsack {
+    public int solveKnapsack(int[] profits, int[] weights, int capacity) {
+        // space optimization solution, O(C) bottom-up dynamic programming approach
+        int n = profits.length;
 
-  if (capacity <= 0 || n == 0 || weights.length != n) return 0;
+        if (capacity <= 0 || n == 0 || weights.length != n) return 0;
 
-  //we only need one previous row to find the optimal solutin,
-  //overall we need 2 rows
-  //the above solution is similar to the previous solution
-  //the only difference is that
-  //we use i%2 instead of i and (i-1)%2 instead of i-1
-  const dp = Array(capacity + 1).fill(0);
+        // we only need one array to store the results of the previous iteration
+        int[] dp = new int[capacity + 1];
 
-  //if we have only one weight, we will take it if it is not more than the capacity
-  for (let c = 0; c <= capacity; c++) {
-    if (weights[0] <= c) {
-      dp[c] = profits[0];
+        // if we have only one weight, we will take it if it is not more than the capacity
+        for (int c = 0; c <= capacity; c++) {
+            if (weights[0] <= c) {
+                dp[c] = profits[0];
+            }
+        }
+
+        // process all sub-arrays for all the capacities
+        for (int i = 1; i < n; i++) {
+            // we iterate in reverse to ensure we use values from the previous item 'i-1'
+            for (int c = capacity; c >= 0; c--) {
+                int profitWithI = 0;
+                int profitMinusI = 0;
+
+                // include the item, if its not more than the capacity
+                if (weights[i] <= c) {
+                    profitWithI = profits[i] + dp[c - weights[i]];
+                }
+
+                // exclude the item
+                profitMinusI = dp[c];
+
+                // take the maximum
+                dp[c] = Math.max(profitWithI, profitMinusI);
+            }
+        }
+
+        // Note: Printing selected elements is not possible with the single-array 
+        // optimization as we lose the history of previous choices.
+        String selectedWeights = "";
+        System.out.println("Selected weights : " + selectedWeights + 
+                           " with Total knapsack profit of ---> $ " + dp[capacity]);
+
+        return dp[capacity];
     }
-  }
 
-  //process all sub-arrays for all the capacities
-  for (let i = 1; i < n; i++) {
-    for (let c = capacity; c >= 0; c--) {
-      let profitWithI = 0;
-      let profitMinusI = 0;
-      //include the item, if its not more than the capacity
-      if (weights[i] <= c) profitWithI = profits[i] + dp[c - weights[i]];
+    public static void main(String[] args) {
+        Knapsack ks = new Knapsack();
+        int[] profits = {1, 6, 10, 16};
+        int[] weights = {1, 2, 3, 5};
 
-      //exclude the item
-      profitMinusI = dp[c];
-
-      //take the maximum
-      dp[c] = Math.max(profitWithI, profitMinusI);
+        System.out.println("Total knapsack profit: ---> $" + ks.solveKnapsack(profits, weights, 7));
+        System.out.println("Total knapsack profit: ---> $" + ks.solveKnapsack(profits, weights, 6));
     }
-  }
-  //**function to print the set of items included in the knapsack**
-  let selectedWeights = '';
-  let totalProfit = dp[capacity];
-  let remainingCapacity = capacity;
-  //*look into this for loop
-  // for (let i = weights.length - 1; i > 0; i--) {
-  //   if (totalProfit != dp[(i - 1) % 2][remainingCapacity]) {
-  //     selectedWeights = `{${weights[i]}lbs @ $${profits[i]}}${selectedWeights}`;
-  //     remainingCapacity -= weights[i];
-  //     totalProfit -= profits[i];
-  //   }
-  // }
-
-  // if (totalProfit != 0) selectedWeights = `${selectedWeights}`;
-  console.log(
-    `Selected weights : ${selectedWeights} with Total knapsack profit of ---> $ ${dp[capacity]}`
-  );
-
-  //maximum profit with be at the bottom-right corner
-  return dp[capacity];
 }
-
-console.log(
-  `Total knapsack profit: ---> $${solveKnapsack(
-    [1, 6, 10, 16],
-    [1, 2, 3, 5],
-    7
-  )}`
-);
-console.log(
-  `Total knapsack profit: ---> $${solveKnapsack(
-    [1, 6, 10, 16],
-    [1, 2, 3, 5],
-    6
-  )}`
-);
 ```
 
 ## Equal Subset Sum Partition (medium)
@@ -667,42 +576,49 @@ Assume that `S` represents the total sum of all the given numbers. Then the two 
 
 So our <b>brute-force</b> algorithm will look like:
 
-```js
-function canPartition(num) {
-  //brute force
-  let sum = 0;
-  for (let i = 0; i < num.length; i++) sum += num[i];
+```java
+public class PartitionSet {
 
-  //if sum is an odd number, we can't have two subset with equal sum
-  if (sum % 2 !== 0) return false;
+  public boolean canPartition(int[] num) {
+    int sum = 0;
+    for (int i = 0; i < num.length; i++) sum += num[i];
 
-  return canPartitionRecursive(num, sum / 2, 0);
+    // if sum is an odd number, we can't have two subsets with equal sum
+    if (sum % 2 != 0) return false;
 
-  function canPartitionRecursive(num, sum, currIndex) {
-    //recursive base case check
-    if (sum === 0) return true;
+    return canPartitionRecursive(num, sum / 2, 0);
+  }
 
-    if (num.length === 0 || currIndex >= num.length) return false;
+  private boolean canPartitionRecursive(int[] num, int sum, int currIndex) {
+    // recursive base case check
+    if (sum == 0) return true;
 
-    //recursive call after choosing the number at currIndex
-    //if the number at currIndex exceed the sum, we shouldn't process
+    if (num.length == 0 || currIndex >= num.length) return false;
+
+    // recursive call after choosing the number at currIndex
+    // if the number at currIndex exceeds the sum, we shouldn't process
     if (num[currIndex] <= sum) {
       if (canPartitionRecursive(num, sum - num[currIndex], currIndex + 1))
         return true;
     }
 
-    //recursive call after excluding the number at currIndex
+    // recursive call after excluding the number at currIndex
     return canPartitionRecursive(num, sum, currIndex + 1);
   }
-  return false;
-}
 
-console.log(`Can partition: ${canPartition([1, 2, 3, 4])}`); //True
-//The given set can be partitioned into two subsets with equal sum: {1, 4} & {2, 3}
-console.log(`Can partition: ${canPartition([1, 1, 3, 4, 7])}`); //True
-//The given set can be partitioned into two subsets with equal sum: {1, 3, 4} & {1, 7}
-console.log(`Can partition: ${canPartition([2, 3, 4, 6])}`); //False
-//The given set cannot be partitioned into two subsets with equal sum.
+  public static void main(String[] args) {
+    PartitionSet ps = new PartitionSet();
+    
+    int[] num = {1, 2, 3, 4};
+    System.out.println("Can partition: " + ps.canPartition(num));
+
+    int[] num2 = {1, 1, 3, 4, 7};
+    System.out.println("Can partition: " + ps.canPartition(num2));
+
+    int[] num3 = {2, 3, 4, 6};
+    System.out.println("Can partition: " + ps.canPartition(num3));
+  }
+}
 ```
 
 - The <b>time complexity</b> of the above algorithm is exponential `O(2ⁿ)`, where `n` represents the total number.
@@ -716,55 +632,57 @@ Since we need to store the results for every subset and for every possible `sum`
 
 Here is the code for <b>Top-down Dynamic Programming with Memoization</b>:
 
-```js
-function canPartition(num) {
-  //Top-down DP with memoization
-  let sum = 0;
-  for (let i = 0; i < num.length; i++) sum += num[i];
+```java
+public class PartitionSet {
 
-  //if sum is an odd number, we can't have two subset with equal sum
-  if (sum % 2 !== 0) return false;
+  public boolean canPartition(int[] num) {
+    int sum = 0;
+    for (int i = 0; i < num.length; i++) sum += num[i];
 
-  const dp = [];
-  return canPartitionRecursive(num, sum / 2, 0);
+    // if sum is an odd number, we can't have two subsets with equal sum
+    if (sum % 2 != 0) return false;
 
-  function canPartitionRecursive(dp, num, sum, currIndex) {
-    //recursive base case check
-    if (sum === 0) return true;
+    // Use Boolean object array to represent three states: null (unprocessed), true, or false
+    Boolean[][] dp = new Boolean[num.length][sum / 2 + 1];
+    return canPartitionRecursive(dp, num, sum / 2, 0);
+  }
 
-    if (num.length === 0 || currIndex >= num.length) return false;
+  private boolean canPartitionRecursive(Boolean[][] dp, int[] num, int sum, int currIndex) {
+    // recursive base case check
+    if (sum == 0) return true;
 
-    dp[currIndex] = dp[currIndex] || [];
+    if (num.length == 0 || currIndex >= num.length) return false;
 
-    //if we have not already processed a similar problem
-    if (typeof dp[currIndex][sum] === 'undefined') {
-      //recursive call after choosing the number at currIndex
-      //if the number at currIndex exceed the sum, we shouldn't process
-      if (num[currIndex] <= sum) {
-        if (canPartitionRecursive(dp, num, sum - num[currIndex], currIndex + 1))
-          dp[currIndex][sum] = true;
+    // if we have already processed a similar problem, return the result from memory
+    if (dp[currIndex][sum] != null) return dp[currIndex][sum];
 
+    // recursive call after choosing the number at currIndex
+    // if the number at currIndex exceeds the sum, we shouldn't process
+    if (num[currIndex] <= sum) {
+      if (canPartitionRecursive(dp, num, sum - num[currIndex], currIndex + 1)) {
+        dp[currIndex][sum] = true;
         return true;
       }
     }
 
-    //recursive call after excluding the number at currIndex
-    return (dp[currIndex][sum] = canPartitionRecursive(
-      dp,
-      num,
-      sum,
-      currIndex + 1
-    ));
+    // recursive call after excluding the number at currIndex
+    dp[currIndex][sum] = canPartitionRecursive(dp, num, sum, currIndex + 1);
+    return dp[currIndex][sum];
   }
-  return dp[currIndex][sum];
-}
 
-console.log(`Can partition: ${canPartition([1, 2, 3, 4])}`); //True
-//The given set can be partitioned into two subsets with equal sum: {1, 4} & {2, 3}
-console.log(`Can partition: ${canPartition([1, 1, 3, 4, 7])}`); //True
-//The given set can be partitioned into two subsets with equal sum: {1, 3, 4} & {1, 7}
-console.log(`Can partition: ${canPartition([2, 3, 4, 6])}`); //False
-//The given set cannot be partitioned into two subsets with equal sum.
+  public static void main(String[] args) {
+    PartitionSet ps = new PartitionSet();
+    
+    int[] num = {1, 2, 3, 4};
+    System.out.println("Can partition: " + ps.canPartition(num));
+
+    int[] num2 = {1, 1, 3, 4, 7};
+    System.out.println("Can partition: " + ps.canPartition(num2));
+
+    int[] num3 = {2, 3, 4, 6};
+    System.out.println("Can partition: " + ps.canPartition(num3));
+  }
+}
 ```
 
 - The above algorithm has the time and <b>space complexity</b> of `O(N*S)`, where `N` represents total numbers and `S` is the total sum of all the numbers.
@@ -783,55 +701,60 @@ Let’s start with our <i>base case of zero capacity</i>:
 
 From the above visualization, we can clearly see that it is possible to partition the given set into two subsets with equal sums, as shown by bottom-right cell: `dp[3][5] => T`
 
-```js
-function canPartition(num) {
-  //Bottom-up Dynamic Programming
-  const n = num.length;
+```java
+public class PartitionSet {
 
-  let sum = 0;
-  for (let i = 0; i < num.length; i++) sum += num[i];
+  public boolean canPartition(int[] num) {
+    int n = num.length;
+    int sum = 0;
+    for (int i = 0; i < n; i++) sum += num[i];
 
-  //if sum is an odd number, we can't have two subset with equal sum
-  if (sum % 2 !== 0) return false;
+    // if sum is an odd number, we can't have two subsets with equal sum
+    if (sum % 2 != 0) return false;
 
-  //we are trying to find a subset of given numbers that has a total sum of sum/2
-  sum /= 2;
+    // we are trying to find a subset of given numbers that has a total sum of sum/2
+    sum /= 2;
 
-  const dp = Array(n)
-    .fill(false)
-    .map(() => Array(sum + 1).fill(false));
+    boolean[][] dp = new boolean[n][sum + 1];
 
-  //populate the sum = 0 columns, as can always for 0 sum with an empty set
-  for (let i = 0; i < n; i++) dp[i][0] = true;
+    // populate the sum = 0 columns, as we can always form 0 sum with an empty set
+    for (int i = 0; i < n; i++) dp[i][0] = true;
 
-  //with only one number, we can form a subset when he required sum is equal to its value
-  for (let s = 1; s <= sum; s++) {
-    dp[0][s] = num[0] == s;
-  }
+    // with only one number, we can form a subset when the required sum is equal to its value
+    for (int s = 1; s <= sum; s++) {
+      dp[0][s] = (num[0] == s);
+    }
 
-  //process all subsets for all sums
-  for (let i = 1; i < n; i++) {
-    for (let s = 1; s <= sum; s++) {
-      //if we can get the sum s with the number at index i
-      if (dp[i - 1][s]) {
-        dp[i][s] = dp[i - 1][s];
-      } else if (s >= num[i]) {
-        //else if we can find a subset to get the remaining sum
-        dp[i][s] = dp[i - 1][s - num[i]];
+    // process all subsets for all sums
+    for (int i = 1; i < n; i++) {
+      for (int s = 1; s <= sum; s++) {
+        // if we can get the sum s without the number at index i
+        if (dp[i - 1][s]) {
+          dp[i][s] = dp[i - 1][s];
+        } else if (s >= num[i]) {
+          // else if we can find a subset to get the remaining sum
+          dp[i][s] = dp[i - 1][s - num[i]];
+        }
       }
     }
+
+    // the bottom right corner will have our answer
+    return dp[n - 1][sum];
   }
 
-  //the bottom right corner will have our answer
-  return dp[n - 1][sum];
-}
+  public static void main(String[] args) {
+    PartitionSet ps = new PartitionSet();
+    
+    int[] num = {1, 2, 3, 4};
+    System.out.println("Can partition: " + ps.canPartition(num));
 
-console.log(`Can partition: ${canPartition([1, 2, 3, 4])}`); //True
-//The given set can be partitioned into two subsets with equal sum: {1, 4} & {2, 3}
-console.log(`Can partition: ${canPartition([1, 1, 3, 4, 7])}`); //True
-//The given set can be partitioned into two subsets with equal sum: {1, 3, 4} & {1, 7}
-console.log(`Can partition: ${canPartition([2, 3, 4, 6])}`); //False
-//The given set cannot be partitioned into two subsets with equal sum.
+    int[] num2 = {1, 1, 3, 4, 7};
+    System.out.println("Can partition: " + ps.canPartition(num2));
+
+    int[] num3 = {2, 3, 4, 6};
+    System.out.println("Can partition: " + ps.canPartition(num3));
+  }
+}
 ```
 
 - The above solution the has time and <b>space complexity</b> of `O(N*S)`, where `N` represents total numbers and `S` is the total sum of all the numbers.
@@ -869,51 +792,53 @@ If either of the above two scenarios returns `true`, we can find a subset with a
 
 Here is the code for our <b>bottom-up dynamic programming</b> approach:
 
-```js
-function canPartition(nums, sum) {
-  //bottom-up dynamic programming approach
-  let n = nums.length;
+```java
+public class SubsetSum {
 
-  const dp = Array(n)
-    .fill(false)
-    .map(() => Array(sum + 1).fill(false));
+  public boolean canPartition(int[] nums, int sum) {
+    // bottom-up dynamic programming approach
+    int n = nums.length;
 
-  //populate the sum=0 columns, as we can always for 0 sum with an empty set
-  for (let i = 0; i < n; i++) dp[i][0] = true;
+    boolean[][] dp = new boolean[n][sum + 1];
 
-  //with only one number, we can form a subset only when the required sum is equal to its value
-  for (let s = 1; s <= sum; s++) dp[0][s] = nums[0] === s;
+    // populate the sum=0 columns, as we can always form 0 sum with an empty set
+    for (int i = 0; i < n; i++) dp[i][0] = true;
 
-  //process all subsets for all lsum
-  for (let i = 1; i < nums.length; i++) {
-    for (let s = 1; s <= sum; s++) {
-      //if we can get the sum s without the number at index i
-      if (dp[i - 1][s]) {
-        dp[i][s] = dp[i - 1][s];
-      } else if (s >= nums[i]) {
-        //else include the number and see if we can find a subset to get the remaining sum
-        dp[i][s] = dp[i - 1][s - nums[i]];
+    // with only one number, we can form a subset only when the required sum is equal to its value
+    for (int s = 1; s <= sum; s++) {
+      dp[0][s] = (nums[0] == s);
+    }
+
+    // process all subsets for all sums
+    for (int i = 1; i < n; i++) {
+      for (int s = 1; s <= sum; s++) {
+        // if we can get the sum s without the number at index i
+        if (dp[i - 1][s]) {
+          dp[i][s] = dp[i - 1][s];
+        } else if (s >= nums[i]) {
+          // else include the number and see if we can find a subset to get the remaining sum
+          dp[i][s] = dp[i - 1][s - nums[i]];
+        }
       }
     }
+
+    // the bottom right corner will have our answer
+    return dp[n - 1][sum];
   }
-  //the bottom right corner will have our answer
-  return dp[nums.length - 1][sum];
+
+  public static void main(String[] args) {
+    SubsetSum ss = new SubsetSum();
+
+    int[] nums1 = {1, 2, 3, 4};
+    System.out.println("Can partitioning be done: ---> " + ss.canPartition(nums1, 6));
+
+    int[] nums2 = {1, 2, 7, 1, 5};
+    System.out.println("Can partitioning be done: ---> " + ss.canPartition(nums2, 10));
+
+    int[] nums3 = {1, 3, 4, 8};
+    System.out.println("Can partitioning be done: ---> " + ss.canPartition(nums3, 6));
+  }
 }
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 2, 3, 4], 6)}`);
-//True
-//The given set has a subset whose sum is '6': {1, 2, 3}
-
-console.log(
-  `Can partitioning be done: ---> ${canPartition([1, 2, 7, 1, 5], 10)}`
-);
-
-//True
-//The given set has a subset whose sum is '10': {1, 2, 7}
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 3, 4, 8], 6)}`);
-//False
-//The given set does not have any subset whose sum is equal to '6'.
 ```
 
 - The above solution has the time and <b>space complexity</b> of `O(N*S)`, where `N` represents total numbers and `S` is the required sum.
@@ -922,50 +847,51 @@ console.log(`Can partitioning be done: ---> ${canPartition([1, 3, 4, 8], 6)}`);
 
 - [x] Can we improve our <b>bottom-up DP</b> solution even further? Can you find an algorithm that has `O(S)` space complexity?
 
-```js
-function canPartition(nums, sum) {
-  //O(S) space bottom-up dynamic programming approach
-  let n = nums.length;
+```java
+public class SubsetSum {
 
-  const dp = Array(sum + 1).fill(false);
+  public boolean canPartition(int[] nums, int sum) {
+    // O(S) space bottom-up dynamic programming approach
+    int n = nums.length;
 
-  //sum=0, as we can always have 0 sum with an empty set
-  dp[0] = true;
+    boolean[] dp = new boolean[sum + 1];
 
-  //with only one number, we can form a subset only when the required sum is equal to its value
-  for (let s = 1; s <= sum; s++) dp[s] = nums[0] == s;
+    // sum=0, as we can always have 0 sum with an empty set
+    dp[0] = true;
 
-  //process all subsets for all lsum
-  for (let i = 1; i < nums.length; i++) {
-    for (let s = sum; s >= 0; s--) {
-      // if dp[s]==true, this means we can get the sum s without
-      //num[i], then move on to the next number else we can include num[i]
-      //and see if e can find a subset to get the remaining sum
+    // with only one number, we can form a subset only when the required sum is equal to its value
+    for (let s = 1; s <= sum; s++) {
+      dp[s] = (nums[0] == s);
+    }
 
-      if (!dp[s] && s >= nums[i]) {
-        //else include the number and see if we can find a subset to get the remaining sum
-        dp[s] = dp[s - nums[i]];
+    // process all subsets for all sums
+    for (int i = 1; i < n; i++) {
+      // iterate backwards so we don't overwrite values needed for the current iteration
+      for (int s = sum; s >= 0; s--) {
+        // if dp[s] is already true, we can reach the sum without nums[i]
+        // otherwise, we check if we can reach the sum by including nums[i]
+        if (!dp[s] && s >= nums[i]) {
+          dp[s] = dp[s - nums[i]];
+        }
       }
     }
+
+    return dp[sum];
   }
 
-  return dp[sum];
+  public static void main(String[] args) {
+    SubsetSum ss = new SubsetSum();
+
+    int[] nums1 = {1, 2, 3, 4};
+    System.out.println("Can partitioning be done: ---> " + ss.canPartition(nums1, 6));
+
+    int[] nums2 = {1, 2, 7, 1, 5};
+    System.out.println("Can partitioning be done: ---> " + ss.canPartition(nums2, 10));
+
+    int[] nums3 = {1, 3, 4, 8};
+    System.out.println("Can partitioning be done: ---> " + ss.canPartition(nums3, 6));
+  }
 }
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 2, 3, 4], 6)}`);
-//True
-//The given set has a subset whose sum is '6': {1, 2, 3}
-
-console.log(
-  `Can partitioning be done: ---> ${canPartition([1, 2, 7, 1, 5], 10)}`
-);
-
-//True
-//The given set has a subset whose sum is '10': {1, 2, 7}
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 3, 4, 8], 6)}`);
-//False
-//The given set does not have any subset whose sum is equal to '6'.
 ```
 
 ## Minimum Subset Sum Difference (hard)
@@ -989,48 +915,53 @@ return the minimum absolute difference of the above two sets
 
 Here is the code for the <b>brute-force</b> solution:
 
-```js
-function canPartition(nums) {
-  //brute force
+```java
+public class PartitionSet {
 
-  function canPartitionRecursive(nums, currIndex, sum1, sum2) {
-    //recursive base check
-    if (currIndex === nums.length) return Math.abs(sum1 - sum2);
+  public int canPartition(int[] nums) {
+    return canPartitionRecursive(nums, 0, 0, 0);
+  }
 
-    //recursive call after including the number at the
-    //currIndex in the first set
-    const difference1 = canPartitionRecursive(
-      nums,
-      currIndex + 1,
-      sum1 + nums[currIndex],
-      sum2
+  private int canPartitionRecursive(int[] nums, int currIndex, int sum1, int sum2) {
+    // recursive base check
+    if (currIndex == nums.length) {
+      return Math.abs(sum1 - sum2);
+    }
+
+    // recursive call after including the number at the
+    // currIndex in the first set
+    int difference1 = canPartitionRecursive(
+        nums,
+        currIndex + 1,
+        sum1 + nums[currIndex],
+        sum2
     );
 
-    //recursive call after including the number at the
-    //currIndex in the second set
-    const difference2 = canPartitionRecursive(
-      nums,
-      currIndex + 1,
-      sum1,
-      sum2 + nums[currIndex]
+    // recursive call after including the number at the
+    // currIndex in the second set
+    int difference2 = canPartitionRecursive(
+        nums,
+        currIndex + 1,
+        sum1,
+        sum2 + nums[currIndex]
     );
 
     return Math.min(difference1, difference2);
   }
-  return canPartitionRecursive(nums, 0, 0, 0);
+
+  public static void main(String[] args) {
+    PartitionSet ps = new PartitionSet();
+
+    int[] nums1 = {1, 2, 3, 9};
+    System.out.println("Can partitioning be done: ---> " + ps.canPartition(nums1));
+
+    int[] nums2 = {1, 2, 7, 1, 5};
+    System.out.println("Can partitioning be done: ---> " + ps.canPartition(nums2));
+
+    int[] nums3 = {1, 3, 100, 4};
+    System.out.println("Can partitioning be done: ---> " + ps.canPartition(nums3));
+  }
 }
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 2, 3, 9])}`);
-//3
-//We can partition the given set into two subsets where minimum absolute difference between the sum of numbers is '3'. Following are the two subsets: {1, 2, 3} & {9}.
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 2, 7, 1, 5])}`);
-//0
-//We can partition the given set into two subsets where minimum absolute difference between the sum of number is '0'. Following are the two subsets: {1, 2, 5} & {7, 1}.
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 3, 100, 4])}`);
-//92
-//We can partition the given set into two subsets where minimum absolute difference between the sum of numbers is '92'. Here are the two subsets: {1, 3, 4} & {100}.
 ```
 
 - Because of the two recursive calls, the <b>time complexity</b> of the above algorithm is exponential `O(2ⁿ)`, where `n` represents the total number.
@@ -1042,57 +973,52 @@ We can use <b>memoization</b> to overcome the overlapping sub-problems.
 
 We will be using a two-dimensional array to store the results of the solved sub-problems. We can uniquely identify a sub-problem from `currIndex` and `sum1` as `sum2` will always be the sum of the remaining numbers.
 
-```js
-function canPartition(nums) {
-  //Top-down Dynamic Programming with Memoization
-  let sum = 0;
-  for (let i = 0; i < nums.length; i++) sum += nums[i];
-  const dp = [];
+```java
+public class PartitionSet {
 
-  function canPartitionRecursive(nums, currIndex, sum1, sum2) {
-    //recursive base check
-    if (currIndex === nums.length) return Math.abs(sum1 - sum2);
+  public int canPartition(int[] nums) {
+    int sum = 0;
+    for (int i = 0; i < nums.length; i++) sum += nums[i];
 
-    dp[currIndex] = dp[currIndex] || [];
+    // We use Integer[][] to store results. 
+    // The dimensions represent currIndex and sum1.
+    Integer[][] dp = new Integer[nums.length][sum + 1];
+    return canPartitionRecursive(dp, nums, 0, 0, 0);
+  }
 
-    //check if we have not already process similar problem
-    if (typeof dp[currIndex][sum1] === 'undefined') {
-      //recursive call after including the number at the
-      //currIndex in the first set
-      const difference1 = canPartitionRecursive(
-        nums,
-        currIndex + 1,
-        sum1 + nums[currIndex],
-        sum2
-      );
-
-      //recursive call after including the number at the
-      //currIndex in the second set
-      const difference2 = canPartitionRecursive(
-        nums,
-        currIndex + 1,
-        sum1,
-        sum2 + nums[currIndex]
-      );
-      dp[currIndex][sum1] = Math.min(difference1, difference2);
+  private int canPartitionRecursive(Integer[][] dp, int[] nums, int currIndex, int sum1, int sum2) {
+    // recursive base check
+    if (currIndex == nums.length) {
+      return Math.abs(sum1 - sum2);
     }
+
+    // check if we have already processed a similar problem
+    if (dp[currIndex][sum1] == null) {
+      // recursive call after including the number at the currIndex in the first set
+      int diff1 = canPartitionRecursive(dp, nums, currIndex + 1, sum1 + nums[currIndex], sum2);
+
+      // recursive call after including the number at the currIndex in the second set
+      int diff2 = canPartitionRecursive(dp, nums, currIndex + 1, sum1, sum2 + nums[currIndex]);
+
+      dp[currIndex][sum1] = Math.min(diff1, diff2);
+    }
+
     return dp[currIndex][sum1];
   }
 
-  return canPartitionRecursive(nums, 0, 0, 0);
+  public static void main(String[] args) {
+    PartitionSet ps = new PartitionSet();
+
+    int[] nums1 = {1, 2, 3, 9};
+    System.out.println("Can partitioning be done: ---> " + ps.canPartition(nums1));
+
+    int[] nums2 = {1, 2, 7, 1, 5};
+    System.out.println("Can partitioning be done: ---> " + ps.canPartition(nums2));
+
+    int[] nums3 = {1, 3, 100, 4};
+    System.out.println("Can partitioning be done: ---> " + ps.canPartition(nums3));
+  }
 }
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 2, 3, 9])}`);
-//3
-//We can partition the given set into two subsets where minimum absolute difference between the sum of numbers is '3'. Following are the two subsets: {1, 2, 3} & {9}.
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 2, 7, 1, 5])}`);
-//0
-//We can partition the given set into two subsets where minimum absolute difference between the sum of number is '0'. Following are the two subsets: {1, 2, 5} & {7, 1}.
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 3, 100, 4])}`);
-//92
-//We can partition the given set into two subsets where minimum absolute difference between the sum of numbers is '92'. Here are the two subsets: {1, 3, 4} & {100}.
 ```
 
 ### Bottom-up Dynamic Programming
@@ -1116,63 +1042,65 @@ The above visualization tells us that it is not possible to find a subset whose 
 
 Here is the code for our <b>bottom-up dynamic programming</b> approach:
 
-```js
-function canPartition(nums) {
-  //bottom-up dynamic programming
-  let n = nums.length;
-  let sum = 0;
-  for (let i = 0; i < n; i++) sum += nums[i];
+```java
+public class PartitionSet {
 
-  const requiredSum = Math.floor(sum / 2);
-  const dp = Array(n)
-    .fill(false)
-    .map(() => Array(requiredSum + 1).fill(false));
+  public int canPartition(int[] nums) {
+    // bottom-up dynamic programming
+    int n = nums.length;
+    int sum = 0;
+    for (int i = 0; i < n; i++) sum += nums[i];
 
-  //populage the sum=0 columns, as we can always form 0 sum with empty set
-  for (let i = 0; i < n; i++) dp[i][0] = true;
+    int requiredSum = sum / 2;
+    boolean[][] dp = new boolean[n][requiredSum + 1];
 
-  //with only only number, we can form a subset only when the reuired sum is eual to that number
-  for (let s = 1; s <= requiredSum; s++) {
-    dp[0][s] = nums[0] == s;
-  }
+    // populate the sum=0 columns, as we can always form 0 sum with empty set
+    for (int i = 0; i < n; i++) dp[i][0] = true;
 
-  //process all subsets for all sums
-  for (let i = 1; i < n; i++) {
-    for (let s = 1; s <= requiredSum; s++) {
-      // if we can get the sum 's' without the number at index 'i'
-      if (dp[i - 1][s]) {
-        dp[i][s] = dp[i - 1][s];
-      } else if (s >= nums[i]) {
-        // else include the number and see if we can find a subset to get the remaining sum
-        dp[i][s] = dp[i - 1][s - nums[i]];
+    // with only one number, we can form a subset only when the required sum is equal to that number
+    for (int s = 1; s <= requiredSum; s++) {
+      dp[0][s] = (nums[0] == s);
+    }
+
+    // process all subsets for all sums
+    for (int i = 1; i < n; i++) {
+      for (int s = 1; s <= requiredSum; s++) {
+        // if we can get the sum 's' without the number at index 'i'
+        if (dp[i - 1][s]) {
+          dp[i][s] = dp[i - 1][s];
+        } else if (s >= nums[i]) {
+          // else include the number and see if we can find a subset to get the remaining sum
+          dp[i][s] = dp[i - 1][s - nums[i]];
+        }
       }
     }
-  }
 
-  let sum1 = 0;
-  // Find the largest index in the last row which is true
-  for (let i = requiredSum; i >= 0; i--) {
-    if (dp[n - 1][i] === true) {
-      sum1 = i;
-      break;
+    int sum1 = 0;
+    // Find the largest index in the last row which is true
+    for (int i = requiredSum; i >= 0; i--) {
+      if (dp[n - 1][i]) {
+        sum1 = i;
+        break;
+      }
     }
+
+    int sum2 = sum - sum1;
+    return Math.abs(sum2 - sum1);
   }
 
-  const sum2 = sum - sum1;
-  return Math.abs(sum2 - sum1);
+  public static void main(String[] args) {
+    PartitionSet ps = new PartitionSet();
+
+    int[] nums1 = {1, 2, 3, 9};
+    System.out.println("Can partitioning be done: ---> " + ps.canPartition(nums1));
+
+    int[] nums2 = {1, 2, 7, 1, 5};
+    System.out.println("Can partitioning be done: ---> " + ps.canPartition(nums2));
+
+    int[] nums3 = {1, 3, 100, 4};
+    System.out.println("Can partitioning be done: ---> " + ps.canPartition(nums3));
+  }
 }
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 2, 3, 9])}`);
-//3
-//We can partition the given set into two subsets where minimum absolute difference between the sum of numbers is '3'. Following are the two subsets: {1, 2, 3} & {9}.
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 2, 7, 1, 5])}`);
-//0
-//We can partition the given set into two subsets where minimum absolute difference between the sum of number is '0'. Following are the two subsets: {1, 2, 5} & {7, 1}.
-
-console.log(`Can partitioning be done: ---> ${canPartition([1, 3, 100, 4])}`);
-//92
-//We can partition the given set into two subsets where minimum absolute difference between the sum of numbers is '92'. Here are the two subsets: {1, 3, 4} & {100}.
 ```
 
 - The above solution has the time and <b>space complexity</b> of `O(N*S)`, where `N` represents total numbers and `S` is the total sum of all the numbers.
@@ -1197,36 +1125,42 @@ return the count of subsets who has a sum equal to 'S'
 
 Here is the code for the <b>brute-force</b> solution:
 
-```js
-function countSubsets(num, sum) {
-  function countSubsetsRecursive(num, sum, currIndex) {
-    //recursive base case check
-    if (sum === 0) return 1;
+```java
+public class SubsetSum {
 
-    if (num.length === 0 || currIndex >= num.length) return 0;
+  public int countSubsets(int[] num, int sum) {
+    return countSubsetsRecursive(num, sum, 0);
+  }
 
-    //recursive call after selecting the number at the currIndex
-    //if the number at currIndex exceeds the sum, we shouldn't process this
-    let sum1 = 0;
+  private int countSubsetsRecursive(int[] num, int sum, int currIndex) {
+    // recursive base case check
+    if (sum == 0) return 1;
+
+    if (num.length == 0 || currIndex >= num.length) return 0;
+
+    // recursive call after selecting the number at the currIndex
+    // if the number at currIndex exceeds the sum, we shouldn't process this
+    int sum1 = 0;
     if (num[currIndex] <= sum) {
       sum1 = countSubsetsRecursive(num, sum - num[currIndex], currIndex + 1);
     }
 
-    //recursive call after excluding the number at currIndex
-    const sum2 = countSubsetsRecursive(num, sum, currIndex + 1);
+    // recursive call after excluding the number at currIndex
+    int sum2 = countSubsetsRecursive(num, sum, currIndex + 1);
+
     return sum1 + sum2;
   }
 
-  return countSubsetsRecursive(num, sum, 0);
-}
+  public static void main(String[] args) {
+    SubsetSum ss = new SubsetSum();
+    
+    int[] num1 = {1, 1, 2, 3};
+    System.out.println("Count of subset sum is: ---> " + ss.countSubsets(num1, 4));
 
-console.log(`Count of subset sum is: ---> ${countSubsets([1, 1, 2, 3], 4)}`);
-// 3
-//The given set has '3' subsets whose sum is '4': {1, 1, 2}, {1, 3}, {1, 3}
-//Note that we have two similar sets {1, 3}, because we have two '1' in our input.
-console.log(`Count of subset sum is: ---> ${countSubsets([1, 2, 7, 1, 5], 9)}`);
-//3
-//The given set has '3' subsets whose sum is '9': {2, 7}, {1, 7, 1}, {1, 2, 1, 5}
+    int[] num2 = {1, 2, 7, 1, 5};
+    System.out.println("Count of subset sum is: ---> " + ss.countSubsets(num2, 9));
+  }
+}
 ```
 
 - The <b>time complexity</b> of the above algorithm is exponential `O(2ⁿ)`, where `n` represents the total number.
@@ -1236,44 +1170,47 @@ console.log(`Count of subset sum is: ---> ${countSubsets([1, 2, 7, 1, 5], 9)}`);
 
 We can use <b>memoization</b> to overcome the overlapping sub-problems. We will be using a two-dimensional array to store the results of solved sub-problems. As mentioned above, we need to store results for every subset and for every possible sum.
 
-```js
-function countSubsets(num, sum) {
-  const dp = [];
+```java
+public class SubsetSum {
 
-  function countSubsetsRecursive(num, sum, currIndex) {
-    //recursive base case check
-    if (sum === 0) return 1;
+  public int countSubsets(int[] num, int sum) {
+    Integer[][] dp = new Integer[num.length][sum + 1];
+    return countSubsetsRecursive(dp, num, sum, 0);
+  }
 
-    if (num.length === 0 || currIndex >= num.length) return 0;
+  private int countSubsetsRecursive(Integer[][] dp, int[] num, int sum, int currIndex) {
+    // recursive base case check
+    if (sum == 0) return 1;
 
-    dp[currIndex] = dp[currIndex] || [];
+    if (num.length == 0 || currIndex >= num.length) return 0;
 
-    //check if we have not already processed a similar problem
-    if (typeof dp[currIndex][sum] === 'undefined') {
-      //recursive call after selecting the number at the currIndex
-      //if the number at currIndex exceeds the sum, we shouldn't process this
-      let sum1 = 0;
+    // check if we have already processed a similar problem
+    if (dp[currIndex][sum] == null) {
+      // recursive call after selecting the number at the currIndex
+      // if the number at currIndex exceeds the sum, we shouldn't process this
+      int sum1 = 0;
       if (num[currIndex] <= sum) {
-        sum1 = countSubsetsRecursive(num, sum - num[currIndex], currIndex + 1);
+        sum1 = countSubsetsRecursive(dp, num, sum - num[currIndex], currIndex + 1);
       }
-      //recursive call after excluding the number at currIndex
-      const sum2 = countSubsetsRecursive(num, sum, currIndex + 1);
+
+      // recursive call after excluding the number at currIndex
+      int sum2 = countSubsetsRecursive(dp, num, sum, currIndex + 1);
       dp[currIndex][sum] = sum1 + sum2;
     }
 
     return dp[currIndex][sum];
   }
 
-  return countSubsetsRecursive(num, sum, 0);
-}
+  public static void main(String[] args) {
+    SubsetSum ss = new SubsetSum();
+    
+    int[] num1 = {1, 1, 2, 3};
+    System.out.println("Count of subset sum is: ---> " + ss.countSubsets(num1, 4));
 
-console.log(`Count of subset sum is: ---> ${countSubsets([1, 1, 2, 3], 4)}`);
-// 3
-//The given set has '3' subsets whose sum is '4': {1, 1, 2}, {1, 3}, {1, 3}
-//Note that we have two similar sets {1, 3}, because we have two '1' in our input.
-console.log(`Count of subset sum is: ---> ${countSubsets([1, 2, 7, 1, 5], 9)}`);
-//3
-//The given set has '3' subsets whose sum is '9': {2, 7}, {1, 7, 1}, {1, 2, 1, 5}
+    int[] num2 = {1, 2, 7, 1, 5};
+    System.out.println("Count of subset sum is: ---> " + ss.countSubsets(num2, 9));
+  }
+}
 ```
 
 ### Bottom-up Dynamic Programming
@@ -1293,47 +1230,50 @@ To find the total sets, we will add both of the above two values:
 
 Here is the code for our <b>bottom-up dynamic programming</b> approach:
 
-```js
-function countSubsets(num, sum) {
-  //bottom-up dynamic programming approach
-  const n = num.length;
-  const dp = Array(n)
-    .fill(0)
-    .map(() => Array(sum + 1).fill(0));
+```java
+public class SubsetSum {
 
-  //populate the sum=0 columns, as we will always have an empty set for zero sum
-  for (let i = 0; i < n; i++) {
-    dp[i][0] = 1;
-  }
+  public int countSubsets(int[] num, int sum) {
+    // bottom-up dynamic programming approach
+    int n = num.length;
+    int[][] dp = new int[n][sum + 1];
 
-  //with only one number, we can form a subset only when the required sum is equal to its value
-  for (let s = 1; s <= sum; s++) {
-    dp[0][s] = num[0] == s ? 1 : 0;
-  }
+    // populate the sum=0 columns, as we will always have an empty set for zero sum
+    for (int i = 0; i < n; i++) {
+      dp[i][0] = 1;
+    }
 
-  //process all subsets for all sums
-  for (let i = 1; i < num.length; i++) {
-    for (let s = 1; s <= sum; s++) {
-      //exclude the number
-      dp[i][s] = dp[i - 1][s];
-      //include the number, if it does not exceed the sum
-      if (s >= num[i]) {
-        dp[i][s] += dp[i - 1][s - num[i]];
+    // with only one number, we can form a subset only when the required sum is equal to its value
+    for (int s = 1; s <= sum; s++) {
+      dp[0][s] = (num[0] == s ? 1 : 0);
+    }
+
+    // process all subsets for all sums
+    for (int i = 1; i < n; i++) {
+      for (int s = 1; s <= sum; s++) {
+        // exclude the number
+        dp[i][s] = dp[i - 1][s];
+        // include the number, if it does not exceed the sum
+        if (s >= num[i]) {
+          dp[i][s] += dp[i - 1][s - num[i]];
+        }
       }
     }
+
+    // the bottom-right corner will have our answer
+    return dp[n - 1][sum];
   }
 
-  //the bottom-right corner will have our answer
-  return dp[num.length - 1][sum];
-}
+  public static void main(String[] args) {
+    SubsetSum ss = new SubsetSum();
+    
+    int[] num1 = {1, 1, 2, 3};
+    System.out.println("Count of subset sum is: ---> " + ss.countSubsets(num1, 4));
 
-console.log(`Count of subset sum is: ---> ${countSubsets([1, 1, 2, 3], 4)}`);
-// 3
-//The given set has '3' subsets whose sum is '4': {1, 1, 2}, {1, 3}, {1, 3}
-//Note that we have two similar sets {1, 3}, because we have two '1' in our input.
-console.log(`Count of subset sum is: ---> ${countSubsets([1, 2, 7, 1, 5], 9)}`);
-//3
-//The given set has '3' subsets whose sum is '9': {2, 7}, {1, 7, 1}, {1, 2, 1, 5}
+    int[] num2 = {1, 2, 7, 1, 5};
+    System.out.println("Count of subset sum is: ---> " + ss.countSubsets(num2, 9));
+  }
+}
 ```
 
 - The above solution has the time and <b>space complexity</b> of `O(N*S)`, where `N` represents total numbers and `S` is the desired sum.
@@ -1342,37 +1282,45 @@ console.log(`Count of subset sum is: ---> ${countSubsets([1, 2, 7, 1, 5], 9)}`);
 
 - [ ] Can we improve our <b>bottom-up DP</b> solution even further? Can you find an algorithm that has `O(S)` space complexity?
 
-```js
-function countSubsets(num, sum) {
-  //O(S) bottom-up dynamic programming approach
-  const n = num.length;
-  const dp = Array(sum + 1).fill(0);
-  dp[0] = 1;
+```java
+public class SubsetSum {
 
-  // with only one number, we can form a subset only when the required sum is equal to its value
-  for (let s = 1; s <= sum; s++) {
-    dp[s] = num[0] == s ? 1 : 0;
-  }
+  public int countSubsets(int[] num, int sum) {
+    // O(S) bottom-up dynamic programming approach
+    int n = num.length;
+    int[] dp = new int[sum + 1];
+    
+    // as we can always have an empty set for zero sum
+    dp[0] = 1;
 
-  // process all subsets for all sums
-  for (let i = 1; i < num.length; i++) {
-    for (let s = sum; s >= 0; s--) {
-      if (s >= num[i]) {
-        dp[s] += dp[s - num[i]];
+    // with only one number, we can form a subset only when the required sum is equal to its value
+    for (int s = 1; s <= sum; s++) {
+      dp[s] = (num[0] == s ? 1 : 0);
+    }
+
+    // process all subsets for all sums
+    for (int i = 1; i < n; i++) {
+      // iterate backwards to ensure we use values from the previous iteration
+      for (int s = sum; s >= 0; s--) {
+        if (s >= num[i]) {
+          dp[s] += dp[s - num[i]];
+        }
       }
     }
+
+    return dp[sum];
   }
 
-  return dp[sum];
-}
+  public static void main(String[] args) {
+    SubsetSum ss = new SubsetSum();
+    
+    int[] num1 = {1, 1, 2, 3};
+    System.out.println("Count of subset sum is: ---> " + ss.countSubsets(num1, 4));
 
-console.log(`Count of subset sum is: ---> ${countSubsets([1, 1, 2, 3], 4)}`);
-// 3
-//The given set has '3' subsets whose sum is '4': {1, 1, 2}, {1, 3}, {1, 3}
-//Note that we have two similar sets {1, 3}, because we have two '1' in our input.
-console.log(`Count of subset sum is: ---> ${countSubsets([1, 2, 7, 1, 5], 9)}`);
-//3
-//The given set has '3' subsets whose sum is '9': {2, 7}, {1, 7, 1}, {1, 2, 1, 5}
+    int[] num2 = {1, 2, 7, 1, 5};
+    System.out.println("Count of subset sum is: ---> " + ss.countSubsets(num2, 9));
+  }
+}
 ```
 
 ## 🌟 Target Sum (hard)
@@ -1413,64 +1361,58 @@ Which means that one of the set `str1` has a sum equal to `(S + Sum(num)) / 2`. 
 
 Let’s take the <b>dynamic programming</b> code of <b>[Count of Subset Sum](#count-of-subset-sum-hard)</b> and extend it to solve this problem:
 
-```js
-function findTargetSubsets(num, s) {
-  let totalSum = 0;
+```java
+public class TargetSum {
 
-  for (let i = 0; i < num.length; i++) totalSum += num[i];
+    public int findTargetSubsets(int[] num, int s) {
+        int totalSum = 0;
+        for (int i = 0; i < num.length; i++) totalSum += num[i];
 
-  //if s + totalSum is odd
-  //we cannot find a subset with sum equal to (s + totalSum)/2
-  if (totalSum < s || (s + totalSum) % 2 == 1) return 0;
+        // if s + totalSum is odd or totalSum is less than s, 
+        // we cannot find a subset with sum equal to (s + totalSum) / 2
+        if (totalSum < s || (s + totalSum) % 2 == 1) return 0;
 
-  return countSubsets(num, (s + totalSum) / 2);
-}
-
-function countSubsets(num, sum) {
-  // this function is the exactly similar to what we
-  //have in 'Count of Subsets Sum' problem
-  let n = num.length;
-
-  let dp = Array(n)
-    .fill(0)
-    .map(() => Array(sum + 1).fill(0));
-
-  //populate the sum=0 columns,
-  //as we will always have an empty set for zero sum
-  for (let i = 0; i < n; i++) dp[i][0] = 1;
-
-  //with only one number,
-  //we can form a subset only when the required sum is equal to its value
-  for (let s = 1; s <= sum; s++) {
-    dp[0][s] = num[0] == s ? 1 : 0;
-  }
-
-  //process all subsets for all sums
-  for (let i = 1; i < num.length; i++) {
-    for (let s = 1; s <= sum; s++) {
-      //exclude the number
-      dp[i][s] = dp[i - 1][s];
-
-      // include the number
-      // if it does not exceed the sum
-      if (s >= num[i]) dp[i][s] += dp[i - 1][s - num[i]];
+        return countSubsets(num, (s + totalSum) / 2);
     }
-  }
 
-  //the bottom-right corner will have our answer
-  return dp[n - 1][sum];
+    private int countSubsets(int[] num, int sum) {
+        int n = num.length;
+        int[][] dp = new int[n][sum + 1];
+
+        // populate the sum=0 columns, as we will always have an empty set for zero sum
+        for (int i = 0; i < n; i++) dp[i][0] = 1;
+
+        // with only one number, we can form a subset only when the required sum is equal to its value
+        for (int s = 1; s <= sum; s++) {
+            dp[0][s] = (num[0] == s ? 1 : 0);
+        }
+
+        // process all subsets for all sums
+        for (int i = 1; i < n; i++) {
+            for (int s = 1; s <= sum; s++) {
+                // exclude the number
+                dp[i][s] = dp[i - 1][s];
+
+                // include the number if it does not exceed the sum
+                if (s >= num[i]) {
+                    dp[i][s] += dp[i - 1][s - num[i]];
+                }
+            }
+        }
+
+        // the bottom-right corner will have our answer
+        return dp[n - 1][sum];
+    }
+
+    public static void main(String[] args) {
+        TargetSum ts = new TargetSum();
+        int[] num1 = {1, 1, 2, 3};
+        System.out.println("Count of Target sum is: ---> " + ts.findTargetSubsets(num1, 1));
+
+        int[] num2 = {1, 2, 7, 1};
+        System.out.println("Count of Target sum is: ---> " + ts.findTargetSubsets(num2, 9));
+    }
 }
-
-console.log(
-  `Count of Target sum is: ---> ${findTargetSubsets([1, 1, 2, 3], 1)}`
-);
-//3
-// The given set has '3' ways to make a sum of '1': {+1-1-2+3} & {-1+1-2+3} & {+1+1+2-3}
-console.log(
-  `Count of Target sum is: ---> ${findTargetSubsets([1, 2, 7, 1], 9)}`
-);
-//2
-// The given set has '2' ways to make a sum of '9': {+1+2+7-1} & {-1+2+7+1}
 ```
 
 - The above solution has time and <b>space complexity</b> of `O(N*S)`, where `N` represents total numbers and `S` is the desired sum.
@@ -1479,54 +1421,55 @@ console.log(
 
 Here is the code for the <b>space-optimized solution</b>, using only a single array:
 
-```js
-function findTargetSubsets(num, s) {
-  //O(s) space optimized solution
-  let totalSum = 0;
+```java
+public class TargetSum {
 
-  for (let i = 0; i < num.length; i++) totalSum += num[i];
+    public int findTargetSubsets(int[] num, int s) {
+        int totalSum = 0;
+        for (int i = 0; i < num.length; i++) totalSum += num[i];
 
-  //if s + totalSum is odd
-  //we cannot find a subset with sum equal to (s + totalSum)/2
-  if (totalSum < s || (s + totalSum) % 2 == 1) return 0;
+        // if s + totalSum is odd or totalSum is less than s, 
+        // we cannot find a subset with sum equal to (s + totalSum) / 2
+        if (totalSum < s || (s + totalSum) % 2 == 1) return 0;
 
-  return countSubsets(num, (s + totalSum) / 2);
-}
-
-function countSubsets(num, sum) {
-  // this function is the exactly simialar to what we
-  //have in 'Count of Subsets Sum' problem
-  let n = num.length;
-
-  let dp = Array(sum + 1).fill(0);
-  dp[0] = 1;
-
-  //with only one number,
-  //we can form a subset only when the required sum is equal to its value
-  for (let s = 1; s <= sum; s++) {
-    dp[s] = num[0] == s ? 1 : 0;
-  }
-
-  //process all subsets for all sums
-  for (let i = 1; i < num.length; i++) {
-    for (let s = sum; s >= 0; s--) {
-      if (s >= num[i]) dp[s] += dp[s - num[i]];
+        return countSubsets(num, (s + totalSum) / 2);
     }
-  }
 
-  return dp[sum];
+    private int countSubsets(int[] num, int sum) {
+        // this function is exactly similar to the space-optimized 
+        // 'Count of Subsets Sum' problem
+        int n = num.length;
+        int[] dp = new int[sum + 1];
+        dp[0] = 1;
+
+        // with only one number, we can form a subset only when 
+        // the required sum is equal to its value
+        for (int s = 1; s <= sum; s++) {
+            dp[s] = (num[0] == s ? 1 : 0);
+        }
+
+        // process all subsets for all sums
+        for (int i = 1; i < n; i++) {
+            // iterate backwards to ensure we use values from the previous iteration
+            for (int s = sum; s >= 0; s--) {
+                if (s >= num[i]) {
+                    dp[s] += dp[s - num[i]];
+                }
+            }
+        }
+
+        return dp[sum];
+    }
+
+    public static void main(String[] args) {
+        TargetSum ts = new TargetSum();
+        int[] num1 = {1, 1, 2, 3};
+        System.out.println("Count of Target sum is: ---> " + ts.findTargetSubsets(num1, 1));
+
+        int[] num2 = {1, 2, 7, 1};
+        System.out.println("Count of Target sum is: ---> " + ts.findTargetSubsets(num2, 9));
+    }
 }
-
-console.log(
-  `Count of Target sum is: ---> ${findTargetSubsets([1, 1, 2, 3], 1)}`
-);
-//3
-// The given set has '3' ways to make a sum of '1': {+1-1-2+3} & {-1+1-2+3} & {+1+1+2-3}
-console.log(
-  `Count of Target sum is: ---> ${findTargetSubsets([1, 2, 7, 1], 9)}`
-);
-//2
-// The given set has '2' ways to make a sum of '9': {+1+2+7-1} & {-1+2+7+1}
 ```
 
 # Pattern 2: Unbounded Knapsack
@@ -1575,51 +1518,43 @@ return the set from the above two sets with higher profit
 
 The only difference between the <b>[0/1 Knapsack pattern](#pattern-1-01-knapsack)</b> problem and this one is that, after including the item, we recursively call to process all the items (including the current item). In <b>[0/1 Knapsack pattern](#pattern-1-01-knapsack)</b>., however, we recursively call to process the remaining items.
 
-```js
-function solveKnapsack(profits, weights, capacity) {
-  function knapsackRecursive(profits, weights, capacity, currIndex) {
-    //recursive base case check
-    if (
-      capacity <= 0 ||
-      profits.length === 0 ||
-      weights.length !== profits.length ||
-      currIndex >= profits.length
-    )
-      return 0;
+```java
+public class Knapsack {
 
-    //recursive call after choosing the items at the currIndex
-    //**recursive call on all items as we did not increment currIndex**
-    let currentProfit = 0;
-    if (weights[currIndex] <= capacity) {
-      currentProfit =
-        profits[currIndex] +
-        knapsackRecursive(
-          profits,
-          weights,
-          capacity - weights[currIndex],
-          currIndex
-        );
+    public int solveKnapsack(int[] profits, int[] weights, int capacity) {
+        return this.knapsackRecursive(profits, weights, capacity, 0);
     }
 
-    //recursive call after excluding the element at the currIndex
-    const currentProfitMinusIndexItem = knapsackRecursive(
-      profits,
-      weights,
-      capacity - weights[currIndex],
-      currIndex + 1
-    );
+    private int knapsackRecursive(int[] profits, int[] weights, int capacity, int currIndex) {
+        // recursive base case check
+        if (capacity <= 0 || 
+            profits.length == 0 || 
+            weights.length != profits.length || 
+            currIndex >= profits.length) {
+            return 0;
+        }
 
-    return Math.max(currentProfit, currentProfitMinusIndexItem);
-  }
+        // recursive call after choosing the items at the currIndex
+        // note that we do not increment currIndex here as we can pick the same item again
+        int currentProfit = 0;
+        if (weights[currIndex] <= capacity) {
+            currentProfit = profits[currIndex] + 
+                knapsackRecursive(profits, weights, capacity - weights[currIndex], currIndex);
+        }
 
-  return knapsackRecursive(profits, weights, capacity, 0);
+        // recursive call after excluding the element at the currIndex
+        int currentProfitMinusIndexItem = knapsackRecursive(profits, weights, capacity, currIndex + 1);
+
+        return Math.max(currentProfit, currentProfitMinusIndexItem);
+    }
+
+    public static void main(String[] args) {
+        Knapsack ks = new Knapsack();
+        int[] profits = {15, 50, 60, 90};
+        int[] weights = {1, 3, 4, 5};
+        System.out.println("Total knapsack profit: ---> " + ks.solveKnapsack(profits, weights, 8));
+    }
 }
-
-const profits = [15, 50, 60, 90];
-const weights = [1, 3, 4, 5];
-console.log(
-  `Total knapsack profit: ---> ${solveKnapsack(profits, weights, 8)}`
-);
 ```
 
 - The <b>time complexity</b> of the above algorithm is exponential `O(2ᴺ⁺ᶜ)`, where `N` represents the total number of items.
@@ -1633,60 +1568,50 @@ Once again, we can use <b>memoization</b> to overcome the overlapping sub-proble
 
 We will be using a two-dimensional array to store the results of solved sub-problems. As mentioned above, we need to store results for every sub-array and for every possible capacity. Here is the code:
 
-```js
-function solveKnapsack(profits, weights, capacity) {
-  const dp = [];
-  function knapsackRecursive(profits, weights, capacity, currIndex) {
-    //recursive base case check
-    if (
-      capacity <= 0 ||
-      profits.length === 0 ||
-      weights.length !== profits.length ||
-      currIndex >= profits.length
-    )
-      return 0;
+```java
+public class Knapsack {
 
-    dp[currIndex] = dp[currIndex] || [];
-
-    //recursive call after choosing the items at the currIndex
-    //**recursive call on all items as we did not increment currIndex**
-    let currentProfit = 0;
-    if (weights[currIndex] <= capacity) {
-      currentProfit =
-        profits[currIndex] +
-        knapsackRecursive(
-          profits,
-          weights,
-          capacity - weights[currIndex],
-          currIndex
-        );
+    public int solveKnapsack(int[] profits, int[] weights, int capacity) {
+        Integer[][] dp = new Integer[profits.length][capacity + 1];
+        return this.knapsackRecursive(dp, profits, weights, capacity, 0);
     }
 
-    //recursive call after excluding the element at the currIndex
-    const currentProfitMinusIndexItem = knapsackRecursive(
-      profits,
-      weights,
-      capacity - weights[currIndex],
-      currIndex + 1
-    );
+    private int knapsackRecursive(Integer[][] dp, int[] profits, int[] weights, int capacity, int currIndex) {
+        // recursive base case check
+        if (capacity <= 0 || 
+            profits.length == 0 || 
+            weights.length != profits.length || 
+            currIndex >= profits.length) {
+            return 0;
+        }
 
-    dp[currIndex][capacity] = Math.max(
-      currentProfit,
-      currentProfitMinusIndexItem
-    );
+        // check if we have already solved this subproblem
+        if (dp[currIndex][capacity] != null) {
+            return dp[currIndex][capacity];
+        }
 
-    // console.log(dp)
-    return dp[currIndex][capacity];
-  }
+        // recursive call after choosing the items at the currIndex
+        // note that we do not increment currIndex here as we can pick the same item again
+        int currentProfit = 0;
+        if (weights[currIndex] <= capacity) {
+            currentProfit = profits[currIndex] + 
+                knapsackRecursive(dp, profits, weights, capacity - weights[currIndex], currIndex);
+        }
 
-  return knapsackRecursive(profits, weights, capacity, 0);
+        // recursive call after excluding the element at the currIndex
+        int currentProfitMinusIndexItem = knapsackRecursive(dp, profits, weights, capacity, currIndex + 1);
+
+        dp[currIndex][capacity] = Math.max(currentProfit, currentProfitMinusIndexItem);
+        return dp[currIndex][capacity];
+    }
+
+    public static void main(String[] args) {
+        Knapsack ks = new Knapsack();
+        int[] profits = {15, 50, 60, 90};
+        int[] weights = {1, 3, 4, 5};
+        System.out.println("Total knapsack profit: ---> " + ks.solveKnapsack(profits, weights, 8));
+    }
 }
-
-const profits = [15, 50, 60, 90];
-const weights = [1, 3, 4, 5];
-console.log(
-  `Total knapsack profit: ---> ${solveKnapsack(profits, weights, 8)}`
-);
 ```
 
 #### What is the time and space complexity of the above solution?
@@ -1712,52 +1637,54 @@ dp[index][c] = max(
 );
 ```
 
-```js
-function solveKnapsack(profits, weights, capacity) {
-  //base case check
-  if (
-    capacity <= 0 ||
-    profits.length === 0 ||
-    weights.length !== profits.length
-  )
-    return 0;
+```java
+public class Knapsack {
 
-  const n = profits.length;
-  const dp = Array(n)
-    .fill(0)
-    .map(() => Array(capacity + 1).fill(0));
+    public int solveKnapsack(int[] profits, int[] weights, int capacity) {
+        // base case check
+        if (capacity <= 0 || profits.length == 0 || weights.length != profits.length) {
+            return 0;
+        }
 
-  //populate the capacity=0 columns
-  for (let i = 0; i < n; i++) dp[i][0] = 0;
+        int n = profits.length;
+        int[][] dp = new int[n][capacity + 1];
 
-  //process all sub-arrays for all capacities
-  for (let i = 0; i < n; i++) {
-    for (let c = 1; c <= capacity; c++) {
-      let currentProfit = 0;
-      let currentProfitMinusIndex = 0;
+        // populate the capacity=0 columns (automatically 0 in Java, but shown for clarity)
+        for (int i = 0; i < n; i++) dp[i][0] = 0;
 
-      if (weights[i] <= c) currentProfit = profits[i] + dp[i][c - weights[i]];
-      if (i > 0) currentProfitMinusIndex = dp[i - 1][c];
-      dp[i][c] =
-        currentProfit > currentProfitMinusIndex
-          ? currentProfit
-          : currentProfitMinusIndex;
+        // process all sub-arrays for all capacities
+        for (int i = 0; i < n; i++) {
+            for (int c = 1; c <= capacity; c++) {
+                int currentProfit = 0;
+                int currentProfitMinusIndex = 0;
+
+                // include the item: stay on the same row 'i' to allow multiple selections
+                if (weights[i] <= c) {
+                    currentProfit = profits[i] + dp[i][c - weights[i]];
+                }
+
+                // exclude the item: take profit from the previous item
+                if (i > 0) {
+                    currentProfitMinusIndex = dp[i - 1][c];
+                }
+
+                dp[i][c] = Math.max(currentProfit, currentProfitMinusIndex);
+            }
+        }
+
+        // maximum profit will be in the bottom right corner
+        return dp[n - 1][capacity];
     }
-  }
-  //maximum profit will be in the bottom right corner
-  return dp[n - 1][capacity];
 
-  console.log(dp);
+    public static void main(String[] args) {
+        Knapsack ks = new Knapsack();
+        int[] profits = {15, 50, 60, 90};
+        int[] weights = {1, 3, 4, 5};
+        
+        System.out.println("Total knapsack profit: ---> " + ks.solveKnapsack(profits, weights, 8));
+        System.out.println("Total knapsack profit: ---> " + ks.solveKnapsack(profits, weights, 6));
+    }
 }
-
-const profits = [15, 50, 60, 90];
-const weights = [1, 3, 4, 5];
-console.log(
-  `Total knapsack profit: ---> ${solveKnapsack(profits, weights, 8)}`
-);
-console.log(
-  `Total knapsack profit: ---> ${solveKnapsack(profits, weights, 6)}`
-);
 ```
 
 - The above solution has time and <b>space complexity</b> of `O(N*C)`, where `N` represents total items and `C` is the maximum capacity.
@@ -1815,53 +1742,45 @@ for each rod length 'i'
 return the set from the above two sets with a higher sales price
 ```
 
-```js
-function solveRodCutting(lengths, prices, n) {
-  function solveRodCuttingRecursive(lengths, prices, n, currIndex) {
-    //recursive base case check
-    if (
-      n <= 0 ||
-      prices.length === 0 ||
-      lengths.length !== prices.length ||
-      currIndex >= prices.length
-    )
-      return 0;
+```java
+public class RodCutting {
 
-    //recursive call after choosing the items at the currIndex
-    //**recursive call on all items as we did not increment currIndex**
-    let currentProfit = 0;
-    if (lengths[currIndex] <= n) {
-      currentProfit =
-        prices[currIndex] +
-        solveRodCuttingRecursive(
-          prices,
-          lengths,
-          n - lengths[currIndex],
-          currIndex
-        );
+  public int solveRodCutting(int[] lengths, int[] prices, int n) {
+    return solveRodCuttingRecursive(lengths, prices, n, 0);
+  }
+
+  private int solveRodCuttingRecursive(int[] lengths, int[] prices, int n, int currIndex) {
+    // recursive base case check
+    if (n <= 0 || 
+        prices.length == 0 || 
+        lengths.length != prices.length || 
+        currIndex >= prices.length) {
+      return 0;
     }
 
-    //recursive call after excluding the element at the currIndex
-    const currentProfitMinusIndexItem = solveRodCuttingRecursive(
-      prices,
-      lengths,
-      n - lengths[currIndex],
-      currIndex + 1
-    );
+    // recursive call after choosing the rod piece at the currIndex
+    // note that we do not increment currIndex here as we can cut another piece of the same length
+    int currentProfit = 0;
+    if (lengths[currIndex] <= n) {
+      currentProfit = prices[currIndex] + 
+        solveRodCuttingRecursive(lengths, prices, n - lengths[currIndex], currIndex);
+    }
+
+    // recursive call after excluding the rod piece at the currIndex
+    int currentProfitMinusIndexItem = solveRodCuttingRecursive(lengths, prices, n, currIndex + 1);
 
     return Math.max(currentProfit, currentProfitMinusIndexItem);
   }
 
-  return solveRodCuttingRecursive(lengths, prices, n, 0);
+  public static void main(String[] args) {
+    RodCutting rc = new RodCutting();
+    int[] lengths = {1, 2, 3, 4, 5};
+    int[] prices = {2, 6, 7, 10, 13};
+    int rodLength = 5;
+    
+    System.out.println("Maximum profit: ---> " + rc.solveRodCutting(lengths, prices, rodLength));
+  }
 }
-
-console.log(
-  `Maximum profit: ---> ${solveRodCutting(
-    (lengths = [1, 2, 3, 4, 5]),
-    (prices = [2, 6, 7, 10, 13]),
-    5
-  )}`
-);
 ```
 
 Since this problem is quite similar to <b>[Unbounded Knapsack pattern](#unbounded-knapsack)</b>, let’s jump directly to the <b>bottom-up dynamic solution</b>.
@@ -1886,45 +1805,51 @@ dp[index][len] = max(
 
 Here is the code for our <b>bottom-up dynamic programming</b> approach:
 
-```js
-function solveRodCutting(lengths, prices, n) {
-  //base checks
-  if (n <= 0 || prices.length === 0 || prices.length !== lengths.length)
-    return 0;
+```java
+public class RodCutting {
 
-  let lCount = lengths.length;
-  const dp = Array(lCount)
-    .fill(0)
-    .map(() => Array(n + 1).fill(0));
-
-  //process all rod lengths for all prices
-  for (let i = 0; i < lCount; i++) {
-    for (let len = 1; len <= n; len++) {
-      let pointer1 = 0;
-      let pointer2 = 0;
-
-      if (lengths[i] <= len) {
-        pointer1 = prices[i] + dp[i][len - lengths[i]];
-      }
-      if (i > 0) {
-        pointer2 = dp[i - 1][len];
-      }
-      dp[i][len] = Math.max(pointer1, pointer2);
+  public int solveRodCutting(int[] lengths, int[] prices, int n) {
+    // base checks
+    if (n <= 0 || prices.length == 0 || prices.length != lengths.length) {
+      return 0;
     }
+
+    int lCount = lengths.length;
+    int[][] dp = new int[lCount][n + 1];
+
+    // process all rod lengths for all capacities
+    for (int i = 0; i < lCount; i++) {
+      for (int len = 1; len <= n; len++) {
+        int pointer1 = 0;
+        int pointer2 = 0;
+
+        // include the current piece: stay on the same row 'i' to allow multiple cuts of same length
+        if (lengths[i] <= len) {
+          pointer1 = prices[i] + dp[i][len - lengths[i]];
+        }
+        
+        // exclude the current piece: take profit from previously considered piece lengths
+        if (i > 0) {
+          pointer2 = dp[i - 1][len];
+        }
+        
+        dp[i][len] = Math.max(pointer1, pointer2);
+      }
+    }
+
+    // max price will be in the bottom-right corner
+    return dp[lCount - 1][n];
   }
 
-  console.log(dp);
-  //max price will be in the bottom-right corner
-  return dp[lCount - 1][n];
-}
+  public static void main(String[] args) {
+    RodCutting rc = new RodCutting();
+    int[] lengths = {1, 2, 3, 4, 5};
+    int[] prices = {2, 6, 7, 10, 13};
+    int rodLength = 5;
 
-console.log(
-  `Maximum profit: ---> $${solveRodCutting(
-    (lengths = [1, 2, 3, 4, 5]),
-    (prices = [2, 6, 7, 10, 13]),
-    5
-  )}`
-);
+    System.out.println("Maximum profit: ---> $" + rc.solveRodCutting(lengths, prices, rodLength));
+  }
+}
 ```
 
 - The above solution has time and <b>space complexity</b> of `O(N*C)`, where `N` represents total items and `C` is the maximum capacity.
@@ -1989,45 +1914,47 @@ This problem is quite similar to <b>[Count of Subset Sum](#🔎-subset-sum-mediu
 
 Here is the code for the <b>brute-force</b> solution:
 
-```js
-function countChange(denominations, total) {
-  function countChangeRecursive(denominations, total, currIndex) {
-    //base checks
-    if (total === 0) return 1;
+```java
+public class CoinChange {
 
-    if (denominations.length === 0 || currIndex >= denominations.length)
-      return 0;
-
-    //recursive call after selecting the coin at currIndex
-    //if the coin at currIndex exceeds the total, we shouldn't process
-    let currSum = 0;
-    if (denominations[currIndex] <= total) {
-      currSum = countChangeRecursive(
-        denominations,
-        total - denominations[currIndex],
-        currIndex
-      );
+    public int countChange(int[] denominations, int total) {
+        return countChangeRecursive(denominations, total, 0);
     }
 
-    //recursive call after excluding the coin at the currIndex
-    let sumAtNextIndex = countChangeRecursive(
-      denominations,
-      total,
-      currIndex + 1
-    );
+    private int countChangeRecursive(int[] denominations, int total, int currIndex) {
+        // base checks
+        if (total == 0) return 1;
 
-    return currSum + sumAtNextIndex;
-  }
+        if (denominations.length == 0 || currIndex >= denominations.length)
+            return 0;
 
-  return countChangeRecursive(denominations, total, 0);
+        // recursive call after selecting the coin at currIndex
+        // note that we do not increment currIndex because we can use the same coin again
+        int currSum = 0;
+        if (denominations[currIndex] <= total) {
+            currSum = countChangeRecursive(
+                denominations,
+                total - denominations[currIndex],
+                currIndex
+            );
+        }
+
+        // recursive call after excluding the coin at the currIndex
+        int sumAtNextIndex = countChangeRecursive(
+            denominations,
+            total,
+            currIndex + 1
+        );
+
+        return currSum + sumAtNextIndex;
+    }
+
+    public static void main(String[] args) {
+        CoinChange cc = new CoinChange();
+        int[] denominations = {1, 2, 3};
+        System.out.println("Number of ways to make change: ---> " + cc.countChange(denominations, 5));
+    }
 }
-
-console.log(
-  `Number of ways to make change: ---> ${countChange(
-    (denominations = [1, 2, 3]),
-    (total = 5)
-  )}`
-);
 ```
 
 - The <b>time complexity</b> of the above algorithm is exponential `O(2ᶜ⁺ᵀ)`, where `C` represents total `coin` denominations and `T` is the total amount that we want to make change. The <b>space complexity</b> will be `O(C+T)`.
@@ -2038,52 +1965,55 @@ Let’s try to find a better solution.
 
 We can use <b>memoization</b> to overcome the <i>overlapping sub-problems</i>. We will be using a two-dimensional array to store the results of solved sub-problems. As mentioned above, we need to store results for every `coin` combination and for every possible sum:
 
-```js
-function countChange(denominations, total) {
-  const dp = [];
-  function countChangeRecursive(denominations, total, currIndex) {
-    //base checks
-    if (total === 0) return 1;
+```java
+public class CoinChange {
 
-    if (denominations.length === 0 || currIndex >= denominations.length)
-      return 0;
-
-    dp[currIndex] = dp[currIndex] || [];
-
-    //if we have already processed a similar sub-problem, return the result
-    if (typeof dp[currIndex][total] !== 'undefined')
-      return dp[currIndex][total];
-
-    //recursive call after selecting the coin at currIndex
-    //if the coin at currIndex exceeds the total, we shouldn't process
-    let currSum = 0;
-    if (denominations[currIndex] <= total) {
-      currSum = countChangeRecursive(
-        denominations,
-        total - denominations[currIndex],
-        currIndex
-      );
+    public int countChange(int[] denominations, int total) {
+        Integer[][] dp = new Integer[denominations.length][total + 1];
+        return countChangeRecursive(dp, denominations, total, 0);
     }
 
-    //recursive call after excluding the coin at the currIndex
-    let sumAtNextIndex = countChangeRecursive(
-      denominations,
-      total,
-      currIndex + 1
-    );
+    private int countChangeRecursive(Integer[][] dp, int[] denominations, int total, int currIndex) {
+        // base checks
+        if (total == 0) return 1;
 
-    dp[currIndex][total] = currSum + sumAtNextIndex;
-    return dp[currIndex][total];
-  }
+        if (denominations.length == 0 || currIndex >= denominations.length)
+            return 0;
 
-  return countChangeRecursive(denominations, total, 0);
+        // if we have already processed a similar sub-problem, return the result from memory
+        if (dp[currIndex][total] != null)
+            return dp[currIndex][total];
+
+        // recursive call after selecting the coin at currIndex
+        // we do not increment currIndex because we have an infinite supply of each coin
+        int currSum = 0;
+        if (denominations[currIndex] <= total) {
+            currSum = countChangeRecursive(
+                dp,
+                denominations,
+                total - denominations[currIndex],
+                currIndex
+            );
+        }
+
+        // recursive call after excluding the coin at the currIndex
+        int sumAtNextIndex = countChangeRecursive(
+            dp,
+            denominations,
+            total,
+            currIndex + 1
+        );
+
+        dp[currIndex][total] = currSum + sumAtNextIndex;
+        return dp[currIndex][total];
+    }
+
+    public static void main(String[] args) {
+        CoinChange cc = new CoinChange();
+        int[] denominations = {1, 2, 3};
+        System.out.println("Number of ways to make change: ---> " + cc.countChange(denominations, 5));
+    }
 }
-console.log(
-  `Number of ways to make change: ---> ${countChange(
-    (denominations = [1, 2, 3]),
-    (total = 5)
-  )}`
-);
 ```
 
 ### Bottom-up Dynamic Programming
@@ -2103,35 +2033,49 @@ dp[index][t] = dp[index - 1][t] + dp[index][t - denominations[index]];
 
 Here is the code for our <b>bottom-up dynamic programming</b> approach:
 
-```js
-function countChange(denominations, total) {
-  const n = denominations.length;
-  const dp = Array(n)
-    .fill(0)
-    .map(() => Array(total + 1).fill(0));
+```java
+public class CoinChange {
 
-  // populate the total=0 columns
-  //as we will always have an empty set for 0 total
-  for (let i = 0; i < n; i++) dp[i][0] = 1;
+    public int countChange(int[] denominations, int total) {
+        int n = denominations.length;
+        if (n == 0) return 0;
 
-  //process all sub-arrays for all capacities
-  for (let i = 0; i < n; i++) {
-    for (let t = 1; t <= total; t++) {
-      if (i > 0) dp[i][t] = dp[i - 1][t];
-      if (t >= denominations[i]) dp[i][t] += dp[i][t - denominations[i]];
+        int[][] dp = new int[n][total + 1];
+
+        // populate the total=0 columns
+        // as we will always have one way (empty set) to make 0 total
+        for (int i = 0; i < n; i++) {
+            dp[i][0] = 1;
+        }
+
+        // process all denominations for all totals
+        for (int i = 0; i < n; i++) {
+            for (int t = 1; t <= total; t++) {
+                // exclude the coin: take ways from the previous denomination
+                if (i > 0) {
+                    dp[i][t] = dp[i - 1][t];
+                }
+
+                // include the coin: stay on the same row 'i' to allow infinite supply
+                if (t >= denominations[i]) {
+                    dp[i][t] += dp[i][t - denominations[i]];
+                }
+            }
+        }
+
+        // total combos will be at the bottom-right corner
+        return dp[n - 1][total];
     }
-  }
-  //total combos will be at the bottom-right corner
-  console.log(dp);
-  return dp[n - 1][total];
-}
 
-console.log(
-  `Number of ways to make change: ---> ${countChange(
-    (denominations = [1, 2, 3]),
-    (total = 5)
-  )}`
-);
+    public static void main(String[] args) {
+        CoinChange cc = new CoinChange();
+        int[] denominations = {1, 2, 3};
+        int total = 5;
+
+        System.out.println("Number of ways to make change: ---> " + 
+                           cc.countChange(denominations, total));
+    }
+}
 ```
 
 - The above solution has time and <b>space complexity</b> of `O(C*T)`, where `C` represents total `coin` denominations and `T` is the total amount that we want to make change.
@@ -2178,44 +2122,57 @@ return the count of coins from the above two sets with a smaller number of coins
 
 Here is the code for the <b>brute-force solution:</b>
 
-```js
-function countChange(denominations, total) {
-  function countChangeRecursive(denominations, total, currIndex) {
-    //base check
-    if (total === 0) return 0;
-    if (denominations.length === 0 || currIndex >= denominations.length)
-      return Infinity;
+```java
+public class CoinChange {
 
-    //recursive call after selecting the coin at currIndex
-    //if the coin at currIndex exceeds the total, we won't process
-    let currCoinCount = Infinity;
-    if (denominations[currIndex] <= total) {
-      const nextCoinCount = countChangeRecursive(
-        denominations,
-        total - denominations[currIndex],
-        currIndex
-      );
-      if (nextCoinCount !== Infinity) currCoinCount = nextCoinCount + 1;
+    public int countChange(int[] denominations, int total) {
+        int result = countChangeRecursive(denominations, total, 0);
+        return result == Integer.MAX_VALUE ? -1 : result;
     }
-    //recursive call after excluding the coin at currIndex
-    const currCountMinusIndex = countChangeRecursive(
-      denominations,
-      total,
-      currIndex + 1
-    );
-    return Math.min(currCoinCount, currCountMinusIndex);
-  }
 
-  const result = countChangeRecursive(denominations, total, 0);
-  return result === Infinity ? -1 : result;
+    private int countChangeRecursive(int[] denominations, int total, int currIndex) {
+        // base check
+        if (total == 0) return 0;
+
+        if (denominations.length == 0 || currIndex >= denominations.length)
+            return Integer.MAX_VALUE;
+
+        // recursive call after selecting the coin at currIndex
+        // if the coin at currIndex exceeds the total, we won't process
+        int currCoinCount = Integer.MAX_VALUE;
+        if (denominations[currIndex] <= total) {
+            int nextCoinCount = countChangeRecursive(
+                denominations, 
+                total - denominations[currIndex], 
+                currIndex
+            );
+            if (nextCoinCount != Integer.MAX_VALUE) {
+                currCoinCount = nextCoinCount + 1;
+            }
+        }
+
+        // recursive call after excluding the coin at currIndex
+        int currCountMinusIndex = countChangeRecursive(
+            denominations, 
+            total, 
+            currIndex + 1
+        );
+
+        return Math.min(currCoinCount, currCountMinusIndex);
+    }
+
+    public static void main(String[] args) {
+        CoinChange cc = new CoinChange();
+        int[] denominations = {1, 2, 3};
+        
+        System.out.println("Minimum coins to make change: ---> " + cc.countChange(denominations, 5));
+        System.out.println("Minimum coins to make change: ---> " + cc.countChange(denominations, 11));
+        System.out.println("Minimum coins to make change: ---> " + cc.countChange(denominations, 7));
+        
+        int[] denominations2 = {3, 5};
+        System.out.println("Minimum coins to make change: ---> " + cc.countChange(denominations2, 7));
+    }
 }
-
-console.log(`Number of ways to make change: ---> ${countChange([1, 2, 3], 5)}`);
-console.log(
-  `Number of ways to make change: ---> ${countChange([1, 2, 3], 11)}`
-);
-console.log(`Number of ways to make change: ---> ${countChange([1, 2, 3], 7)}`);
-console.log(`Number of ways to make change: ---> ${countChange([3, 5], 7)}`);
 ```
 
 - The <b>time complexity</b> of the above algorithm is exponential `O(2ᶜ⁺ᵀ)`, where `C` represents total `coin` denominations and `T` is the total amount that we want to make change. The <b>space complexity</b> will be `O(C+T)`.
@@ -2226,52 +2183,65 @@ Let’s try to find a better solution.
 
 We can use <b>memoization</b> to overcome the <b>overlapping sub-problems</b>. We will be using a two-dimensional array to store the results of solved <i>sub-problems</i>. As mentioned above, we need to store results for every `coin` combination and for every possible sum:
 
-```js
-function countChange(denominations, total) {
-  const dp = [];
-  function countChangeRecursive(denominations, total, currIndex) {
-    //base check
-    if (total === 0) return 0;
-    if (denominations.length === 0 || currIndex >= denominations.length)
-      return Infinity;
+```java
+public class CoinChange {
 
-    dp[currIndex] = dp[currIndex] || [];
-
-    //check if we. have not alreay processed a similar subproblem
-    if (typeof dp[currIndex][total] === 'undefined') {
-      //recursive call after selecting the coin at currIndex
-      //if the coin at currIndex exceeds the total, we won't process
-      let currCoinCount = Infinity;
-      if (denominations[currIndex] <= total) {
-        const nextCoinCount = countChangeRecursive(
-          denominations,
-          total - denominations[currIndex],
-          currIndex
-        );
-        if (nextCoinCount !== Infinity) currCoinCount = nextCoinCount + 1;
-      }
-      //recursive call after excluding the coin at currIndex
-      const currCountMinusIndex = countChangeRecursive(
-        denominations,
-        total,
-        currIndex + 1
-      );
-      dp[currIndex][total] = Math.min(currCoinCount, currCountMinusIndex);
+    public int countChange(int[] denominations, int total) {
+        Integer[][] dp = new Integer[denominations.length][total + 1];
+        int result = countChangeRecursive(dp, denominations, total, 0);
+        return result == Integer.MAX_VALUE ? -1 : result;
     }
 
-    return dp[currIndex][total];
-  }
+    private int countChangeRecursive(Integer[][] dp, int[] denominations, int total, int currIndex) {
+        // base check
+        if (total == 0) return 0;
 
-  const result = countChangeRecursive(denominations, total, 0);
-  return result === Infinity ? -1 : result;
+        if (denominations.length == 0 || currIndex >= denominations.length)
+            return Integer.MAX_VALUE;
+
+        // check if we have already processed a similar subproblem
+        if (dp[currIndex][total] == null) {
+            // recursive call after selecting the coin at currIndex
+            int currCoinCount = Integer.MAX_VALUE;
+            if (denominations[currIndex] <= total) {
+                int nextCoinCount = countChangeRecursive(
+                    dp, 
+                    denominations, 
+                    total - denominations[currIndex], 
+                    currIndex
+                );
+                
+                if (nextCoinCount != Integer.MAX_VALUE) {
+                    currCoinCount = nextCoinCount + 1;
+                }
+            }
+
+            // recursive call after excluding the coin at currIndex
+            int currCountMinusIndex = countChangeRecursive(
+                dp, 
+                denominations, 
+                total, 
+                currIndex + 1
+            );
+
+            dp[currIndex][total] = Math.min(currCoinCount, currCountMinusIndex);
+        }
+
+        return dp[currIndex][total];
+    }
+
+    public static void main(String[] args) {
+        CoinChange cc = new CoinChange();
+        int[] denominations = {1, 2, 3};
+        
+        System.out.println("Minimum coins: ---> " + cc.countChange(denominations, 5));
+        System.out.println("Minimum coins: ---> " + cc.countChange(denominations, 11));
+        System.out.println("Minimum coins: ---> " + cc.countChange(denominations, 7));
+        
+        int[] denominations2 = {3, 5};
+        System.out.println("Minimum coins: ---> " + cc.countChange(denominations2, 7));
+    }
 }
-
-console.log(`Number of ways to make change: ---> ${countChange([1, 2, 3], 5)}`);
-console.log(
-  `Number of ways to make change: ---> ${countChange([1, 2, 3], 11)}`
-);
-console.log(`Number of ways to make change: ---> ${countChange([1, 2, 3], 7)}`);
-console.log(`Number of ways to make change: ---> ${countChange([3, 5], 7)}`);
 ```
 
 ### Bottom-up Dynamic Programming
@@ -2291,46 +2261,56 @@ dp[index][t] = min(dp[index - 1][t], dp[index][t - denominations[index]] + 1);
 
 Here is the code for our <b>bottom-up dynamic programming</b> approach:
 
-```js
-function countChange(denominations, total) {
-  const n = denominations.length;
-  const dp = Array(n)
-    .fill(0)
-    .map(() => Array(total + 1).fill(0));
+```java
+public class CoinChange {
 
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j <= total; j++) {
-      dp[i][j] = Infinity;
+    public int countChange(int[] denominations, int total) {
+        int n = denominations.length;
+        int[][] dp = new int[n][total + 1];
+
+        // Initialize all table cells with a large value (Infinity)
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j <= total; j++) {
+                dp[i][j] = Integer.MAX_VALUE;
+            }
+        }
+
+        // Populate the total=0 columns: 0 coins needed to make 0 total
+        for (int i = 0; i < n; i++) {
+            dp[i][0] = 0;
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (int t = 1; t <= total; t++) {
+                // Exclude the coin
+                if (i > 0) {
+                    dp[i][t] = dp[i - 1][t];
+                }
+
+                // Include the coin
+                if (t >= denominations[i]) {
+                    int res = dp[i][t - denominations[i]];
+                    if (res != Integer.MAX_VALUE) {
+                        // Math.min with current value (which might be from dp[i-1][t])
+                        dp[i][t] = Math.min(dp[i][t], res + 1);
+                    }
+                }
+            }
+        }
+
+        // Total result is in the bottom-right corner
+        return dp[n - 1][total] == Integer.MAX_VALUE ? -1 : dp[n - 1][total];
     }
-  }
 
-  //populate the total=0 columns, as we don't need any coin to make 0 total
-  for (let i = 0; i < n; i++) dp[i][0] = 0;
-
-  for (let i = 0; i < n; i++) {
-    for (let t = 1; t <= total; t++) {
-      if (i > 0) {
-        //exclude the coin
-        dp[i][t] = dp[i - 1][t];
-      }
-      if (t >= denominations[i]) {
-        //include the coin
-        dp[i][t] = Math.min(dp[i][t], dp[i][t - denominations[i]] + 1);
-      }
+    public static void main(String[] args) {
+        CoinChange cc = new CoinChange();
+        
+        System.out.println("Minimum coins: ---> " + cc.countChange(new int[]{1, 2, 3}, 5));
+        System.out.println("Minimum coins: ---> " + cc.countChange(new int[]{1, 2, 3}, 11));
+        System.out.println("Minimum coins: ---> " + cc.countChange(new int[]{1, 2, 3}, 7));
+        System.out.println("Minimum coins: ---> " + cc.countChange(new int[]{3, 5}, 7));
     }
-  }
-
-  console.log(dp);
-  //total combos will be in the bottom-right corner
-  return dp[n - 1][total] === Infinity ? -1 : dp[n - 1][total];
 }
-
-console.log(`Number of ways to make change: ---> ${countChange([1, 2, 3], 5)}`);
-console.log(
-  `Number of ways to make change: ---> ${countChange([1, 2, 3], 11)}`
-);
-console.log(`Number of ways to make change: ---> ${countChange([1, 2, 3], 7)}`);
-console.log(`Number of ways to make change: ---> ${countChange([3, 5], 7)}`);
 ```
 
 - The above solution has time and <b>space complexity</b> of `O(C*T)`, where `C` represents total `coin` denominations and `T` is the total amount that we want to make change.
@@ -2386,48 +2366,63 @@ return the number of pieces from the above two sets with a higher number of piec
 
 Here is the code for the <b>brute-force solution:</b>
 
-```js
-function countRibbonPieces(ribbonLengths, total) {
-  function countRibbonPiecesRecursive(ribbonLengths, total, currIndex) {
-    //base check
-    if (total === 0) return 0;
+```java
+public class RibbonCut {
 
-    if (ribbonLengths.length === 0 || currIndex >= ribbonLengths.length)
-      return -Infinity;
-
-    //recursive call after selecting the ribbon length at currIndex
-    //if the ribbon length at the currIndex exceeds total, we shouldn't process
-    let currRibbon = -Infinity;
-    if (ribbonLengths[currIndex] <= total) {
-      let withoutIndexRibbon = countRibbonPiecesRecursive(
-        ribbonLengths,
-        total - ribbonLengths[currIndex],
-        currIndex
-      );
-
-      if (withoutIndexRibbon !== -Infinity) currRibbon = withoutIndexRibbon + 1;
+    public int countRibbonPieces(int[] ribbonLengths, int total) {
+        int result = countRibbonPiecesRecursive(ribbonLengths, total, 0);
+        return result == Integer.MIN_VALUE ? -1 : result;
     }
 
-    //recursive call after excluding the ribbon at currIndex
-    const nextRibbon = countRibbonPiecesRecursive(
-      ribbonLengths,
-      total,
-      currIndex + 1
-    );
-    return Math.min(currRibbon, nextRibbon);
-  }
-  const result = countRibbonPiecesRecursive(ribbonLengths, total, 0);
-  return result === -Infinity ? -1 : result;
-}
+    private int countRibbonPiecesRecursive(int[] ribbonLengths, int total, int currIndex) {
+        // base check: if we hit the total exactly, we've found a valid combination
+        if (total == 0) return 0;
 
-console.log(
-  `Maximum number of ribbons: ---> ${countRibbonPieces([2, 3, 5], 5)}`);
-console.log(
-  `Maximum number of ribbons: ---> ${countRibbonPieces([2, 3], 7)}`);
-console.log(
-  `Maximum number of ribbons: ---> ${countRibbonPieces([3, 5, 7], 13)}`;
-console.log(
-  `Maximum number of ribbons: ---> ${countRibbonPieces([3, 5], 7)}`);
+        // if we run out of lengths or exceed the total
+        if (ribbonLengths.length == 0 || currIndex >= ribbonLengths.length)
+            return Integer.MIN_VALUE;
+
+        // recursive call after selecting the ribbon length at currIndex
+        int currRibbon = Integer.MIN_VALUE;
+        if (ribbonLengths[currIndex] <= total) {
+            int res = countRibbonPiecesRecursive(
+                ribbonLengths, 
+                total - ribbonLengths[currIndex], 
+                currIndex
+            );
+
+            if (res != Integer.MIN_VALUE) {
+                currRibbon = res + 1;
+            }
+        }
+
+        // recursive call after excluding the ribbon at currIndex
+        int nextRibbon = countRibbonPiecesRecursive(
+            ribbonLengths, 
+            total, 
+            currIndex + 1
+        );
+
+        // use Math.max to find the MAXIMUM number of pieces
+        return Math.max(currRibbon, nextRibbon);
+    }
+
+    public static void main(String[] args) {
+        RibbonCut rc = new RibbonCut();
+        
+        int[] l1 = {2, 3, 5};
+        System.out.println("Maximum number of ribbons: ---> " + rc.countRibbonPieces(l1, 5));
+        
+        int[] l2 = {2, 3};
+        System.out.println("Maximum number of ribbons: ---> " + rc.countRibbonPieces(l2, 7));
+        
+        int[] l3 = {3, 5, 7};
+        System.out.println("Maximum number of ribbons: ---> " + rc.countRibbonPieces(l3, 13));
+        
+        int[] l4 = {3, 5};
+        System.out.println("Maximum number of ribbons: ---> " + rc.countRibbonPieces(l4, 7));
+    }
+}
 ```
 
 The above algorithm’s <b>time complexity</b> is exponential `O(2 ᴸ⁺ᴺ)`, where `L` represents total ribbon lengths, and `N` is the total length that we want to cut. The <b>space complexity</b> will be `O(L+N)`.
@@ -2454,47 +2449,53 @@ dp[index][len] = max(
 
 Here is the code for our <b>bottom-up dynamic programming approach</b>:
 
-```js
-function countRibbonPieces(ribbonLengths, total) {
-  let n = ribbonLengths.length;
-  const dp = Array(n)
-    .fill(0)
-    .map(() => Array(total + 1).fill(0));
+```java
+public class RibbonCut {
 
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j <= total; j++) {
-      dp[i][j] = -Infinity;
+    public int countRibbonPieces(int[] ribbonLengths, int total) {
+        int n = ribbonLengths.length;
+        int[][] dp = new int[n][total + 1];
+
+        // Initialize all table cells with a very small value (representing -Infinity)
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j <= total; j++) {
+                dp[i][j] = Integer.MIN_VALUE;
+            }
+        }
+
+        // Populate the total=0 columns: 0 ribbons needed to make 0 total
+        for (int i = 0; i < n; i++) {
+            dp[i][0] = 0;
+        }
+
+        for (int i = 0; i < n; i++) {
+            for (int t = 1; t <= total; t++) {
+                // Exclude the ribbon
+                if (i > 0) {
+                    dp[i][t] = dp[i - 1][t];
+                }
+
+                // Include the ribbon if current length 't' is >= ribbon length
+                // and the remaining length can be validly cut (not MIN_VALUE)
+                if (t >= ribbonLengths[i] && dp[i][t - ribbonLengths[i]] != Integer.MIN_VALUE) {
+                    dp[i][t] = Math.max(dp[i][t], dp[i][t - ribbonLengths[i]] + 1);
+                }
+            }
+        }
+
+        // Return the bottom-right corner result
+        return dp[n - 1][total] == Integer.MIN_VALUE ? -1 : dp[n - 1][total];
     }
-  }
 
-  //populate the total=0 columns, as we don't need any ribbons to make 0 total
-  for (let i = 0; i < n; i++) dp[i][0] = 0;
+    public static void main(String[] args) {
+        RibbonCut rc = new RibbonCut();
 
-  for (let i = 0; i < n; i++) {
-    for (let t = 1; t <= total; t++) {
-      if (i > 0) {
-        //exclude the ribbon
-        dp[i][t] = dp[i - 1][t];
-      }
-
-      if (t >= ribbonLengths[i] && dp[i][t - ribbonLengths[i]] !== -Infinity) {
-        //include the ribbon and check if the remaining length can be cut into available lengths
-        dp[i][t] = Math.max(dp[i][t], dp[i][t - ribbonLengths[i]] + 1);
-      }
+        System.out.println("Maximum number of ribbons: ---> " + rc.countRibbonPieces(new int[]{2, 3, 5}, 5));
+        System.out.println("Maximum number of ribbons: ---> " + rc.countRibbonPieces(new int[]{2, 3}, 7));
+        System.out.println("Maximum number of ribbons: ---> " + rc.countRibbonPieces(new int[]{3, 5, 7}, 13));
+        System.out.println("Maximum number of ribbons: ---> " + rc.countRibbonPieces(new int[]{3, 5}, 7));
     }
-  }
-
-  return dp[n - 1][total] === -Infinity ? -1 : dp[n - 1][total];
 }
-
-console.log(
-  `Maximum number of ribbons: ---> ${countRibbonPieces([2, 3, 5], 5)}`);
-console.log(
-  `Maximum number of ribbons: ---> ${countRibbonPieces([2, 3], 7)}`);
-console.log(
-  `Maximum number of ribbons: ---> ${countRibbonPieces([3, 5, 7], 13)}`;
-console.log(
-  `Maximum number of ribbons: ---> ${countRibbonPieces([3, 5], 7)}`);
 ```
 
 - The above solution has time and <b>space complexity</b> of `O(L*N)`, where `L` represents total ribbon lengths and `N` is the total length that we want to cut.
@@ -2531,14 +2532,26 @@ Given that: Fib(0) = 0, and Fib(1) = 1
 A <i>Basic Brute Force Solution</i> could be to have a recursive implementation of the mathematical formula discussed above:
 
 ```js
-function calculateFibonacci(n) {
-  if (n < 2) return n;
-  return calculateFibonacci(n - 1) + calculateFibonacci(n - 2);
-}
+public class Fibonacci {
 
-console.log(`5th Fibonacci is ---> ${calculateFibonacci(5)}`);
-console.log(`6th Fibonacci is ---> ${calculateFibonacci(6)}`);
-console.log(`7th Fibonacci is ---> ${calculateFibonacci(7)}`);
+    public int calculateFibonacci(int n) {
+        // base case: if n is 0 or 1, return n
+        if (n < 2) {
+            return n;
+        }
+
+        // recursive call: f(n) = f(n-1) + f(n-2)
+        return calculateFibonacci(n - 1) + calculateFibonacci(n - 2);
+    }
+
+    public static void main(String[] args) {
+        Fibonacci fib = new Fibonacci();
+
+        System.out.println("5th Fibonacci is ---> " + fib.calculateFibonacci(5));
+        System.out.println("6th Fibonacci is ---> " + fib.calculateFibonacci(6));
+        System.out.println("7th Fibonacci is ---> " + fib.calculateFibonacci(7));
+    }
+}
 ```
 
 The <b>time complexity</b> of the above algorithm is exponential `O(2ᴺ)` as we are making two recursive calls in the same function. The <b>space complexity</b> is `O(n)` which is used to store the <i>recursion stack</i>.
@@ -2549,27 +2562,34 @@ Let’s visually draw the recursion for `CalculateFibonacci(4)` to see the overl
 
 We can use an array to store the already solved subproblems. Here is the code:
 
-```js
-function calculateFibonacci(n) {
-  const memoize = [];
+```java
+public class Fibonacci {
 
-  function fib(n) {
-    if (n < 2) return n;
+    public int calculateFibonacci(int n) {
+        // Use an array to store calculated results
+        int[] memoize = new int[n + 1];
+        return fib(memoize, n);
+    }
 
-    //if we have already solved this subproblem, simply return the result from the cache
-    if (memoize[n]) return memoize[n];
+    private int fib(int[] memoize, int n) {
+        if (n < 2) return n;
 
-    memoize[n] = calculateFibonacci(n - 1) + calculateFibonacci(n - 2);
+        // If we have already solved this subproblem, return the result from the cache
+        if (memoize[n] != 0) return memoize[n];
 
-    return memoize[n];
-  }
+        memoize[n] = fib(memoize, n - 1) + fib(memoize, n - 2);
 
-  return fib(n);
+        return memoize[n];
+    }
+
+    public static void main(String[] args) {
+        Fibonacci fibObj = new Fibonacci();
+
+        System.out.println("5th Fibonacci is ---> " + fibObj.calculateFibonacci(5));
+        System.out.println("6th Fibonacci is ---> " + fibObj.calculateFibonacci(6));
+        System.out.println("7th Fibonacci is ---> " + fibObj.calculateFibonacci(7));
+    }
 }
-
-console.log(`5th Fibonacci is ---> ${calculateFibonacci(5)}`);
-console.log(`6th Fibonacci is ---> ${calculateFibonacci(6)}`);
-console.log(`7th Fibonacci is ---> ${calculateFibonacci(7)}`);
 ```
 
 ### Bottom-up Dynamic Programming
@@ -2578,21 +2598,35 @@ Let’s try to populate our `dp[]` array from the above solution, working in a b
 
 Here is the code for the <b>bottom-up dynamic programming approach</b>:
 
-```js
-function calculateFibonacci(n) {
-  if (n < 2) return n;
-  const dp = [0, 1];
+```java
+public class Fibonacci {
 
-  for (let i = 2; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2];
-  }
+    public int calculateFibonacci(int n) {
+        if (n < 2) return n;
 
-  return dp[n];
+        // Create an array to store results of subproblems
+        int[] dp = new int[n + 1];
+
+        // Base cases
+        dp[0] = 0;
+        dp[1] = 1;
+
+        // Iteratively fill the dp table
+        for (int i = 2; i <= n; i++) {
+            dp[i] = dp[i - 1] + dp[i - 2];
+        }
+
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        Fibonacci fib = new Fibonacci();
+
+        System.out.println("5th Fibonacci is ---> " + fib.calculateFibonacci(5));
+        System.out.println("6th Fibonacci is ---> " + fib.calculateFibonacci(6));
+        System.out.println("7th Fibonacci is ---> " + fib.calculateFibonacci(7));
+    }
 }
-
-console.log(`5th Fibonacci is ---> ${calculateFibonacci(5)}`);
-console.log(`6th Fibonacci is ---> ${calculateFibonacci(6)}`);
-console.log(`7th Fibonacci is ---> ${calculateFibonacci(7)}`);
 ```
 
 - The above solution has time and <b>space complexity</b> of `O(n)`.
@@ -2601,23 +2635,34 @@ console.log(`7th Fibonacci is ---> ${calculateFibonacci(7)}`);
 
 We can optimize the space used in our previous solution. We don’t need to store all the <b>Fibonacci numbers</b> up to `n`, as we only need two previous numbers to calculate the next <b>Fibonacci number</b>. We can use this fact to further improve our solution:
 
-```js
-function calculateFibonacci(n) {
-  if (n < 2) return n;
+```java
+public class Fibonacci {
 
-  let n1 = 0;
-  let n2 = 1;
+    public int calculateFibonacci(int n) {
+        if (n < 2) return n;
 
-  for (let i = 2; i <= n; i++) {
-    [n1, n2] = [n2, n1 + n2];
-  }
+        int n1 = 0;
+        int n2 = 1;
 
-  return n2;
+        for (int i = 2; i <= n; i++) {
+            // In Java, we use a temporary variable 
+            // since we don't have built-in array destructuring like JS
+            int temp = n1 + n2;
+            n1 = n2;
+            n2 = temp;
+        }
+
+        return n2;
+    }
+
+    public static void main(String[] args) {
+        Fibonacci fib = new Fibonacci();
+
+        System.out.println("5th Fibonacci is ---> " + fib.calculateFibonacci(5));
+        System.out.println("6th Fibonacci is ---> " + fib.calculateFibonacci(6));
+        System.out.println("7th Fibonacci is ---> " + fib.calculateFibonacci(7));
+    }
 }
-
-console.log(`5th Fibonacci is ---> ${calculateFibonacci(5)}`);
-console.log(`6th Fibonacci is ---> ${calculateFibonacci(6)}`);
-console.log(`7th Fibonacci is ---> ${calculateFibonacci(7)}`);
 ```
 
 - The above solution has a <b>time complexity</b> of `O(n)` but a constant <b>space complexity</b> `O(1)`.
@@ -2657,33 +2702,41 @@ At every step, we have three options:
 
 So our algorithm will look like this:
 
-```js
-function countWays(n) {
-  if (n === 0) {
-    return 1;
-  } // base case, we don't need to take any step, so there is only one way
+```java
+public class Staircase {
 
-  if (n === 1) {
-    return 1;
-  } // we can take one step to reach the end, and that is the only way
+    public int countWays(int n) {
+        // base case: if no steps are left, we've found 1 valid path
+        if (n == 0) {
+            return 1;
+        }
+        // only 1 way to climb 1 step
+        if (n == 1) {
+            return 1;
+        }
+        // 2 ways to climb 2 steps: (1,1) or (2)
+        if (n == 2) {
+            return 2;
+        }
 
-  if (n === 2) {
-    return 2;
-  } // we can take one step twice or jump two steps to reach at the top
+        // if we take 1 step, we are left with 'n-1' steps
+        int take1Step = countWays(n - 1);
+        // if we take 2 steps, we are left with 'n-2' steps
+        int take2Step = countWays(n - 2);
+        // if we take 3 steps, we are left with 'n-3' steps
+        int take3Step = countWays(n - 3);
 
-  // if we take 1 step, we are left with 'n-1' steps;
-  const take1Step = countWays(n - 1);
-  // similarly, if we took 2 steps, we are left with 'n-2' steps;
-  const take2Step = countWays(n - 2);
-  // if we took 3 steps, we are left with 'n-3' steps;
-  const take3Step = countWays(n - 3);
+        return take1Step + take2Step + take3Step;
+    }
 
-  return take1Step + take2Step + take3Step;
+    public static void main(String[] args) {
+        Staircase sc = new Staircase();
+
+        System.out.println("Number of ways: ---> " + sc.countWays(3));
+        System.out.println("Number of ways: ---> " + sc.countWays(4));
+        System.out.println("Number of ways: ---> " + sc.countWays(5));
+    }
 }
-
-console.log(`Number of ways: ---> ${countWays(3)}`);
-console.log(`Number of ways: ---> ${countWays(4)}`);
-console.log(`Number of ways: ---> ${countWays(5)}`);
 ```
 
 - The <b>time complexity</b> of the above algorithm is exponential `O(3ᴺ)` as we are making three <i>recursive calls</i> in the same function. The <b>space complexity</b> is `O(n)` which is used to store the <i>recursion stack</i>.
@@ -2697,37 +2750,45 @@ We can clearly see the overlapping subproblem pattern: `countWays(2)` and `count
 
 We can use an array to store the already solved subproblems. Here is the code:
 
-```js
-function countWays(n) {
-  const dp = [1, 1, 2];
+```java
+public class Staircase {
 
-  function countWaysRecursive(n) {
-    // base case
-    if (n <= 2) {
-      return dp[n];
+    public int countWays(int n) {
+        // Initialize the memoization table with -1 or 0 to track unsolved subproblems
+        int[] dp = new int[n + 1];
+        return countWaysRecursive(dp, n);
     }
 
-    // if we take 1 step, we are left with 'n-1' steps;
-    const take1Step = countWaysRecursive(n - 1);
-    // similarly, if we took 2 steps, we are left with 'n-2' steps;
-    const take2Step = countWaysRecursive(n - 2);
-    // if we took 3 steps, we are left with 'n-3' steps;
-    const take3Step = countWaysRecursive(n - 3);
-    dp[n] = take1Step + take2Step + take3Step;
+    private int countWaysRecursive(int[] dp, int n) {
+        // Base cases
+        if (n == 0) return 1;
+        if (n == 1) return 1;
+        if (n == 2) return 2;
 
-    console.log(dp);
-    return dp[n];
-  }
+        // If we have already solved this subproblem, return the result from cache
+        if (dp[n] != 0) {
+            return dp[n];
+        }
 
-  return countWaysRecursive(n);
+        // Recursive calls
+        int take1Step = countWaysRecursive(dp, n - 1);
+        int take2Step = countWaysRecursive(dp, n - 2);
+        int take3Step = countWaysRecursive(dp, n - 3);
+
+        // Store the result in the memoization table
+        dp[n] = take1Step + take2Step + take3Step;
+
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        Staircase sc = new Staircase();
+
+        System.out.println("Number of ways (3 steps): ---> " + sc.countWays(3));
+        System.out.println("Number of ways (4 steps): ---> " + sc.countWays(4));
+        System.out.println("Number of ways (5 steps): ---> " + sc.countWays(5));
+    }
 }
-
-console.log(`Number of ways: ---> ${countWays(0)}`);
-console.log(`Number of ways: ---> ${countWays(1)}`);
-console.log(`Number of ways: ---> ${countWays(2)}`);
-console.log(`Number of ways: ---> ${countWays(3)}`);
-console.log(`Number of ways: ---> ${countWays(4)}`);
-console.log(`Number of ways: ---> ${countWays(5)}`);
 ```
 
 #### What is the time and space complexity of the above solution?
@@ -2741,31 +2802,45 @@ Let’s try to populate our `dp[]` array from the above solution, working in a <
 
 Here is the code for our <b>bottom-up dynamic programming approach</b>:
 
-```js
-function countWays(n) {
-  const dp = Array(n + 1).fill(1);
-  dp[2] = 2;
+```java
+public class Staircase {
 
-  for (let i = 3; i <= n; i++) {
-    // if we take 1 step, we are left with 'n-1' steps;
-    const take1Step = dp[n - 1];
-    // similarly, if we took 2 steps, we are left with 'n-2' steps;
-    const take2Step = dp[n - 2];
-    // if we took 3 steps, we are left with 'n-3' steps;
-    const take3Step = dp[n - 3];
+    public int countWays(int n) {
+        // Handle base cases for small n to avoid array index out of bounds
+        if (n == 0) return 1;
+        if (n == 1) return 1;
+        if (n == 2) return 2;
 
-    dp[i] = take1Step + take2Step + take3Step;
-  }
+        int[] dp = new int[n + 1];
+        
+        // Base case initialization
+        dp[0] = 1;
+        dp[1] = 1;
+        dp[2] = 2;
 
-  return dp[n];
+        for (int i = 3; i <= n; i++) {
+            // Corrected: use 'i' instead of 'n' to reference previous subproblems
+            int take1Step = dp[i - 1];
+            int take2Step = dp[i - 2];
+            int take3Step = dp[i - 3];
+
+            dp[i] = take1Step + take2Step + take3Step;
+        }
+
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        Staircase sc = new Staircase();
+
+        System.out.println("Number of ways (0): ---> " + sc.countWays(0));
+        System.out.println("Number of ways (1): ---> " + sc.countWays(1));
+        System.out.println("Number of ways (2): ---> " + sc.countWays(2));
+        System.out.println("Number of ways (3): ---> " + sc.countWays(3));
+        System.out.println("Number of ways (4): ---> " + sc.countWays(4));
+        System.out.println("Number of ways (5): ---> " + sc.countWays(5));
+    }
 }
-
-console.log(`Number of ways: ---> ${countWays(0)}`);
-console.log(`Number of ways: ---> ${countWays(1)}`);
-console.log(`Number of ways: ---> ${countWays(2)}`);
-console.log(`Number of ways: ---> ${countWays(3)}`);
-console.log(`Number of ways: ---> ${countWays(4)}`);
-console.log(`Number of ways: ---> ${countWays(5)}`);
 ```
 
 - The above solution has <b>time and space complexity</b> of `O(n)`.
@@ -2774,23 +2849,41 @@ console.log(`Number of ways: ---> ${countWays(5)}`);
 
 We can optimize the space used in our previous solution. We don’t need to store all the counts up to `n`, as we only need three previous numbers to calculate the next count. We can use this fact to further improve our solution:
 
-```js
-function countWays(n) {
-  const dp = [1, 1, 2];
+```java
+public class Staircase {
 
-  for (let i = 3; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 2] + dp[i - 3];
-  }
+    public int countWays(int n) {
+        // Handle base cases to prevent index out of bounds
+        if (n == 0) return 1;
+        if (n == 1) return 1;
+        if (n == 2) return 2;
 
-  return dp[n];
+        int[] dp = new int[n + 1];
+        
+        // Initialize base cases based on your JS array [1, 1, 2]
+        dp[0] = 1;
+        dp[1] = 1;
+        dp[2] = 2;
+
+        // Fill the table iteratively
+        for (int i = 3; i <= n; i++) {
+            dp[i] = dp[i - 1] + dp[i - 2] + dp[i - 3];
+        }
+
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        Staircase sc = new Staircase();
+
+        System.out.println("Number of ways (0): ---> " + sc.countWays(0));
+        System.out.println("Number of ways (1): ---> " + sc.countWays(1));
+        System.out.println("Number of ways (2): ---> " + sc.countWays(2));
+        System.out.println("Number of ways (3): ---> " + sc.countWays(3));
+        System.out.println("Number of ways (4): ---> " + sc.countWays(4));
+        System.out.println("Number of ways (5): ---> " + sc.countWays(5));
+    }
 }
-
-console.log(`Number of ways: ---> ${countWays(0)}`);
-console.log(`Number of ways: ---> ${countWays(1)}`);
-console.log(`Number of ways: ---> ${countWays(2)}`);
-console.log(`Number of ways: ---> ${countWays(3)}`);
-console.log(`Number of ways: ---> ${countWays(4)}`);
-console.log(`Number of ways: ---> ${countWays(5)}`);
 ```
 
 - The above solution has a <b>time complexity</b> of `O(n)` and a constant <b>space complexity</b> `O(1)`.
@@ -2840,28 +2933,40 @@ Let’s first start with a <b>recursive brute-force solution</b>.
 
 For every number `i`, we have three option: subtract either `1`, `3`, or `4` from `i` and recursively process the remaining number. So our algorithm will look like:
 
-```js
-function countWays(n) {
-  function countWaysRecursive(n) {
-    //base case
-    if (n <= 2) return 1;
-    if (n === 3) return 2;
+```java
+public class NumberFactors {
 
-    // if we subtract 1, we are left with 'n-1'
-    const subtract1 = countWays(n - 1);
-    // if we subtract 3, we are left with 'n-3'
-    const subtract3 = countWays(n - 3);
-    // if we subtract 4, we are left with 'n-4'
-    const subtract4 = countWays(n - 4);
+    public int countWays(int n) {
+        return countWaysRecursive(n);
+    }
 
-    return subtract1 + subtract3 + subtract4;
-  }
-  return countWaysRecursive(n);
+    private int countWaysRecursive(int n) {
+        // Base cases based on your logic:
+        // n=0, 1, 2 all return 1
+        if (n <= 2) {
+            return 1;
+        }
+        // n=3 returns 2 ({1,1,1}, {3})
+        if (n == 3) {
+            return 2;
+        }
+
+        // Recursive calls subtracting the factors 1, 3, and 4
+        int subtract1 = countWaysRecursive(n - 1);
+        int subtract3 = countWaysRecursive(n - 3);
+        int subtract4 = countWaysRecursive(n - 4);
+
+        return subtract1 + subtract3 + subtract4;
+    }
+
+    public static void main(String[] args) {
+        NumberFactors nf = new NumberFactors();
+
+        System.out.println("Number of ways (4): ---> " + nf.countWays(4));
+        System.out.println("Number of ways (5): ---> " + nf.countWays(5));
+        System.out.println("Number of ways (6): ---> " + nf.countWays(6));
+    }
 }
-
-console.log(`Number of ways: ---> ${countWays(4)}`);
-console.log(`Number of ways: ---> ${countWays(5)}`);
-console.log(`Number of ways: ---> ${countWays(6)}`);
 ```
 
 The <b>time complexity</b> of the above algorithm is exponential `O(3ᴺ)`. The <b>space complexity</b> is `O(n)` which is used to store the <i>recursion stack</i>.
@@ -2875,32 +2980,44 @@ We can clearly see the <i>overlapping subproblems pattern</i>: `CountWays(3)`, `
 
 We can use an array to store the already solved <i>subproblems</i>. Here is the code:
 
-```js
-function countWays(n) {
-  const dp = [];
-  function countWaysRecursive(n) {
-    //base case
-    if (n <= 2) return 1;
-    if (n === 3) return 2;
+```java
+public class NumberFactors {
 
-    // if(typeod dp[n] === 'undefined'){
-    // if we subtract 1, we are left with 'n-1'
-    const subtract1 = countWaysRecursive(n - 1);
-    // if we subtract 3, we are left with 'n-3'
-    const subtract3 = countWaysRecursive(n - 3);
-    // if we subtract 4, we are left with 'n-4'
-    const subtract4 = countWaysRecursive(n - 4);
+    public int countWays(int n) {
+        // Initialize dp table with size n+1
+        int[] dp = new int[n + 1];
+        return countWaysRecursive(dp, n);
+    }
 
-    dp[n] = subtract1 + subtract3 + subtract4;
+    private int countWaysRecursive(int[] dp, int n) {
+        // Base cases
+        if (n <= 2) return 1;
+        if (n == 3) return 2;
 
-    return dp[n];
-  }
-  return countWaysRecursive(n);
+        // Check if we have already solved this subproblem
+        // Since ways are always > 0, we can check for != 0
+        if (dp[n] != 0) {
+            return dp[n];
+        }
+
+        // Recursive calls using the specific factors {1, 3, 4}
+        int subtract1 = countWaysRecursive(dp, n - 1);
+        int subtract3 = countWaysRecursive(dp, n - 3);
+        int subtract4 = countWaysRecursive(dp, n - 4);
+
+        dp[n] = subtract1 + subtract3 + subtract4;
+
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        NumberFactors nf = new NumberFactors();
+
+        System.out.println("Number of ways (4): ---> " + nf.countWays(4));
+        System.out.println("Number of ways (5): ---> " + nf.countWays(5));
+        System.out.println("Number of ways (6): ---> " + nf.countWays(6));
+    }
 }
-
-console.log(`Number of ways: ---> ${countWays(4)}`);
-console.log(`Number of ways: ---> ${countWays(5)}`);
-console.log(`Number of ways: ---> ${countWays(6)}`);
 ```
 
 ### Bottom-up Dynamic Programming
@@ -2909,19 +3026,38 @@ Let’s try to populate our `dp[]` array from the above solution, working in a <
 
 Here is the code for our <b>bottom-up dynamic programming approach</b>:
 
-```js
-function countWays(n) {
-  const dp = [1, 1, 1, 2];
+```java
+public class NumberFactors {
 
-  for (let i = 4; i <= n; i++) {
-    dp[i] = dp[i - 1] + dp[i - 3] + dp[i - 4];
-  }
-  return dp[n];
+    public int countWays(int n) {
+        // Handle small n to avoid array index out of bounds
+        if (n <= 2) return 1;
+        if (n == 3) return 2;
+
+        int[] dp = new int[n + 1];
+        
+        // Base case initialization matching your JS [1, 1, 1, 2]
+        dp[0] = 1;
+        dp[1] = 1;
+        dp[2] = 1;
+        dp[3] = 2;
+
+        // Fill the table using factors {1, 3, 4}
+        for (int i = 4; i <= n; i++) {
+            dp[i] = dp[i - 1] + dp[i - 3] + dp[i - 4];
+        }
+
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        NumberFactors nf = new NumberFactors();
+
+        System.out.println("Number of ways (4): ---> " + nf.countWays(4));
+        System.out.println("Number of ways (5): ---> " + nf.countWays(5));
+        System.out.println("Number of ways (6): ---> " + nf.countWays(6));
+    }
 }
-
-console.log(`Number of ways: ---> ${countWays(4)}`);
-console.log(`Number of ways: ---> ${countWays(5)}`);
-console.log(`Number of ways: ---> ${countWays(6)}`);
 ```
 
 The above solution has time and space complexity of `O(n)`.
@@ -2965,37 +3101,50 @@ We will start with the `0`th index and try all options. So, if the value at the 
 
 Here is the code:
 
-```js
-function countMinJumps(jumps) {
-  function countMinJumpsRecursive(jumps, jumpIndex) {
-    //if we have reached the last index
-    //we don't need to do any more jumping
-    if (jumpIndex >= jumps.length - 1) return 0;
+```java
+public class MinimumJumps {
 
-    if (jumps[jumpIndex] === 0) return Infinity;
-
-    let totalJumps = Infinity;
-    let start = jumpIndex + 1;
-    let end = jumpIndex + jumps[jumpIndex];
-    while (start < jumps.length && start <= end) {
-      //jump one step and recurse for the remainder
-      const minJumps = countMinJumpsRecursive(jumps, start++);
-
-      if (minJumps !== Infinity) {
-        totalJumps = Math.min(totalJumps, minJumps + 1);
-      }
+    public int countMinJumps(int[] jumps) {
+        return countMinJumpsRecursive(jumps, 0);
     }
 
-    return totalJumps;
-  }
+    private int countMinJumpsRecursive(int[] jumps, int jumpIndex) {
+        // if we have reached the last index, we don't need any more jumps
+        if (jumpIndex >= jumps.length - 1) {
+            return 0;
+        }
 
-  return countMinJumpsRecursive(jumps, 0);
+        // if the current value is 0, we can't move forward
+        if (jumps[jumpIndex] == 0) {
+            return Integer.MAX_VALUE;
+        }
+
+        int totalJumps = Integer.MAX_VALUE;
+        int start = jumpIndex + 1;
+        int end = jumpIndex + jumps[jumpIndex];
+
+        while (start < jumps.length && start <= end) {
+            // jump one step and recurse for the remainder
+            int minJumps = countMinJumpsRecursive(jumps, start++);
+
+            if (minJumps != Integer.MAX_VALUE) {
+                totalJumps = Math.min(totalJumps, minJumps + 1);
+            }
+        }
+
+        return totalJumps;
+    }
+
+    public static void main(String[] args) {
+        MinimumJumps mj = new MinimumJumps();
+
+        int[] jumps1 = {2, 1, 1, 1, 4};
+        System.out.println("Minimum jumps needed: ---> " + mj.countMinJumps(jumps1));
+
+        int[] jumps2 = {1, 1, 3, 6, 9, 3, 0, 1, 3};
+        System.out.println("Minimum jumps needed: ---> " + mj.countMinJumps(jumps2));
+    }
 }
-
-console.log(`Minimum jumps needed: ---> ${countMinJumps([2, 1, 1, 1, 4])}`);
-console.log(
-  `Minimum jumps needed: ---> ${countMinJumps([1, 1, 3, 6, 9, 3, 0, 1, 3])}`
-);
 ```
 
 - The <b>time complexity</b> of the above algorithm is `O(2ⁿ)`, where `n` is the size of the input array. The <i>while loop</i> can execute a maximum of `n` times (for the case where we can jump to all the steps ahead) and since in each iteration, the function <i>recursively calls</i> itself, therefore, the <b>time complexity</b> is `O(2ⁿ)`. The <b>space complexity</b> is `O(n)` which is used to store the <i>recursion stack</i>.
@@ -3006,39 +3155,52 @@ We can clearly see the <i>overlapping subproblem pattern</i>. We can optimize th
 
 We can use an array to store the already solved <i>subproblems</i>. Here is the code for this:
 
-```js
-function countMinJumps(jumps) {
-  const dp = Array(jumps.length).fill(0);
-  function countMinJumpsRecursive(jumps, jumpIndex) {
-    //if we have reached the last index
-    //we don't need to do any more jumping
-    if (jumpIndex >= jumps.length - 1) return 0;
+```java
+public class MinimumJumps {
 
-    if (jumps[jumpIndex] === 0) return Infinity;
-
-    let totalJumps = Infinity;
-    let start = jumpIndex + 1;
-    let end = jumpIndex + jumps[jumpIndex];
-    while (start < jumps.length && start <= end) {
-      //jump one step and recurse for the remainder
-      const minJumps = countMinJumpsRecursive(jumps, start++);
-
-      if (minJumps !== Infinity) {
-        totalJumps = Math.min(totalJumps, minJumps + 1);
-      }
-      dp[jumpIndex] = totalJumps;
+    public int countMinJumps(int[] jumps) {
+        // Use Integer array so we can check for 'null' as unvisited
+        Integer[] dp = new Integer[jumps.length];
+        return countMinJumpsRecursive(dp, jumps, 0);
     }
 
-    return dp[jumpIndex];
-  }
+    private int countMinJumpsRecursive(Integer[] dp, int[] jumps, int jumpIndex) {
+        // if we have reached the last index, we don't need any more jumping
+        if (jumpIndex >= jumps.length - 1) return 0;
 
-  return countMinJumpsRecursive(jumps, 0);
+        // if the current value is 0, we can't move forward
+        if (jumps[jumpIndex] == 0) return Integer.MAX_VALUE;
+
+        // if we have already solved this subproblem, return the cached result
+        if (dp[jumpIndex] != null) return dp[jumpIndex];
+
+        int totalJumps = Integer.MAX_VALUE;
+        int start = jumpIndex + 1;
+        int end = jumpIndex + jumps[jumpIndex];
+
+        while (start < jumps.length && start <= end) {
+            // jump one step and recurse for the remainder
+            int minJumps = countMinJumpsRecursive(dp, jumps, start++);
+
+            if (minJumps != Integer.MAX_VALUE) {
+                totalJumps = Math.min(totalJumps, minJumps + 1);
+            }
+        }
+
+        dp[jumpIndex] = totalJumps;
+        return dp[jumpIndex];
+    }
+
+    public static void main(String[] args) {
+        MinimumJumps mj = new MinimumJumps();
+
+        int[] jumps1 = {2, 1, 1, 1, 4};
+        System.out.println("Minimum jumps needed: ---> " + mj.countMinJumps(jumps1));
+
+        int[] jumps2 = {1, 1, 3, 6, 9, 3, 0, 1, 3};
+        System.out.println("Minimum jumps needed: ---> " + mj.countMinJumps(jumps2));
+    }
 }
-
-console.log(`Minimum jumps needed: ---> ${countMinJumps([2, 1, 1, 1, 4])}`);
-console.log(
-  `Minimum jumps needed: ---> ${countMinJumps([1, 1, 3, 6, 9, 3, 0, 1, 3])}`
-);
 ```
 
 ### Bottom-up Dynamic Programming
@@ -3055,28 +3217,47 @@ So, while going through all the indices, we will take the minimum value between 
 
 Here is the code for our <b>bottom-up dynamic programming approach</b>:
 
-```js
-function countMinJumps(jumps) {
-  const dp = Array(jumps.length).fill(Infinity);
-  dp[0] = 0;
+```java
+import java.util.Arrays;
 
-  for (let start = 0; start < jumps.length - 1; start++) {
-    for (
-      let end = start + 1;
-      end <= start + jumps[start] && end < jumps.length;
-      end++
-    ) {
-      dp[end] = Math.min(dp[end], dp[start] + 1);
+public class MinimumJumps {
+
+    public int countMinJumps(int[] jumps) {
+        int n = jumps.length;
+        int[] dp = new int[n];
+        
+        // Initialize the table with a large value (Infinity)
+        Arrays.fill(dp, Integer.MAX_VALUE);
+        
+        // Base case: 0 jumps needed to reach the first index
+        dp[0] = 0;
+
+        for (int start = 0; start < n - 1; start++) {
+            // Only proceed if the current 'start' index is reachable
+            if (dp[start] != Integer.MAX_VALUE) {
+                for (int end = start + 1; 
+                     end <= start + jumps[start] && end < n; 
+                     end++) {
+                    
+                    // Update the minimum jumps needed to reach the 'end' index
+                    dp[end] = Math.min(dp[end], dp[start] + 1);
+                }
+            }
+        }
+
+        return dp[n - 1];
     }
-  }
 
-  return dp[jumps.length - 1];
+    public static void main(String[] args) {
+        MinimumJumps mj = new MinimumJumps();
+
+        int[] jumps1 = {2, 1, 1, 1, 4};
+        System.out.println("Minimum jumps needed: ---> " + mj.countMinJumps(jumps1));
+
+        int[] jumps2 = {1, 1, 3, 6, 9, 3, 0, 1, 3};
+        System.out.println("Minimum jumps needed: ---> " + mj.countMinJumps(jumps2));
+    }
 }
-
-console.log(`Minimum jumps needed: ---> ${countMinJumps([2, 1, 1, 1, 4])}`);
-console.log(
-  `Minimum jumps needed: ---> ${countMinJumps([1, 1, 3, 6, 9, 3, 0, 1, 3])}`
-);
 ```
 
 - The above solution has a <b>time complexity</b> of `O(n²)` (because of the two `for` loops) and <b>space complexity</b> of `O(n)` to store `dp[]`.
@@ -3127,27 +3308,45 @@ At every step, we have three options:
 
 So our algorithm will look like:
 
-```js
-function findMinFee(fee) {
-  function findMinFeeRecursive(fee, currIndex) {
-    if (currIndex > fee.length - 1) return 0;
+```java
+public class StaircaseFee {
 
-    //if we take 1 step, we are left with n-1 steps
-    const take1Step = findMinFeeRecursive(fee, currIndex + 1);
-    //similarly, if we take 2 steps, we are left with n-2 steps
-    const take2Steps = findMinFeeRecursive(fee, currIndex + 2);
-    //if we take 3 steps, we are left with n-3 steps
-    const take3Steps = findMinFeeRecursive(fee, currIndex + 3);
+    public int findMinFee(int[] fee) {
+        return findMinFeeRecursive(fee, 0);
+    }
 
-    const minCost = Math.min(take1Step, take2Steps, take3Steps);
+    private int findMinFeeRecursive(int[] fee, int currIndex) {
+        // Base case: if we have passed the last step, no more fee is required
+        if (currIndex >= fee.length) {
+            return 0;
+        }
 
-    return minCost + fee[currIndex];
-  }
-  return findMinFeeRecursive(fee, 0);
+        // Recursive call for taking 1 step
+        int take1Step = findMinFeeRecursive(fee, currIndex + 1);
+        
+        // Recursive call for taking 2 steps
+        int take2Steps = findMinFeeRecursive(fee, currIndex + 2);
+        
+        // Recursive call for taking 3 steps
+        int take3Steps = findMinFeeRecursive(fee, currIndex + 3);
+
+        // Find the minimum of the three paths
+        int minCost = Math.min(take1Step, Math.min(take2Steps, take3Steps));
+
+        // Add the fee of the current step to the minimum cost of the next steps
+        return minCost + fee[currIndex];
+    }
+
+    public static void main(String[] args) {
+        StaircaseFee sf = new StaircaseFee();
+
+        int[] fee1 = {1, 2, 5, 2, 1, 2};
+        System.out.println("Minimum fee needed: ---> " + sf.findMinFee(fee1));
+
+        int[] fee2 = {2, 3, 4, 5};
+        System.out.println("Minimum fee needed: ---> " + sf.findMinFee(fee2));
+    }
 }
-
-console.log(`Minimum fee needed: ---> ${findMinFee([1, 2, 5, 2, 1, 2])}`);
-console.log(`Minimum fee needed: ---> ${findMinFee([2, 3, 4, 5])}`);
 ```
 
 - The <b>time complexity</b> of the above algorithm is exponential `O(3ⁿ)`. The <b>space complexity</b> is `O(n)` which is used to store the <i>recursion stack</i>.
@@ -3156,29 +3355,50 @@ console.log(`Minimum fee needed: ---> ${findMinFee([2, 3, 4, 5])}`);
 
 To resolve <i>overlapping subproblems</i>, we can use an array to store the already solved subproblems. Here is the code:
 
-```js
-function findMinFee(fee) {
-  const dp = [];
-  function findMinFeeRecursive(fee, currIndex) {
-    if (currIndex > fee.length - 1) return 0;
+```java
+public class StaircaseFee {
 
-    //if we take 1 step, we are left with n-1 steps
-    const take1Step = findMinFeeRecursive(fee, currIndex + 1);
-    //similarly, if we take 2 steps, we are left with n-2 steps
-    const take2Steps = findMinFeeRecursive(fee, currIndex + 2);
-    //if we take 3 steps, we are left with n-3 steps
-    const take3Steps = findMinFeeRecursive(fee, currIndex + 3);
+    public int findMinFee(int[] fee) {
+        Integer[] dp = new Integer[fee.length];
+        return findMinFeeRecursive(dp, fee, 0);
+    }
 
-    dp[currIndex] =
-      Math.min(take1Step, take2Steps, take3Steps) + fee[currIndex];
+    private int findMinFeeRecursive(Integer[] dp, int[] fee, int currIndex) {
+        // Base case: if we have passed the last step
+        if (currIndex >= fee.length) {
+            return 0;
+        }
 
-    return dp[currIndex];
-  }
-  return findMinFeeRecursive(fee, 0);
+        // Check if we have already processed this subproblem
+        if (dp[currIndex] != null) {
+            return dp[currIndex];
+        }
+
+        // Recursive call for taking 1 step
+        int take1Step = findMinFeeRecursive(dp, fee, currIndex + 1);
+        
+        // Recursive call for taking 2 steps
+        int take2Steps = findMinFeeRecursive(dp, fee, currIndex + 2);
+        
+        // Recursive call for taking 3 steps
+        int take3Steps = findMinFeeRecursive(dp, fee, currIndex + 3);
+
+        // Store result: current fee + the minimum of the three possible jumps
+        dp[currIndex] = fee[currIndex] + Math.min(take1Step, Math.min(take2Steps, take3Steps));
+
+        return dp[currIndex];
+    }
+
+    public static void main(String[] args) {
+        StaircaseFee sf = new StaircaseFee();
+
+        int[] fee1 = {1, 2, 5, 2, 1, 2};
+        System.out.println("Minimum fee needed: ---> " + sf.findMinFee(fee1));
+
+        int[] fee2 = {2, 3, 4, 5};
+        System.out.println("Minimum fee needed: ---> " + sf.findMinFee(fee2));
+    }
 }
-
-console.log(`Minimum fee needed: ---> ${findMinFee([1, 2, 5, 2, 1, 2])}`);
-console.log(`Minimum fee needed: ---> ${findMinFee([2, 3, 4, 5])}`);
 ```
 
 ### Bottom-up Dynamic Programming
@@ -3187,31 +3407,46 @@ Let’s try to populate our `dp[]` array from the above solution, working in a <
 
 Here is the code for our <b>bottom-up dynamic programming approach</b>:
 
-```js
-function findMinFee(fee) {
-  const dp = Array(fee.length + 1).fill(0);
-  // if there are no steps, we dont have to pay any fee
-  // only one step, so we have to pay its fee
-  dp[1] = fee[0];
-  // for 2 steps, since we start from the first step, so we have to pay its fee
-  dp[2] = fee[0];
-  // and from the first step we can reach the top by taking two steps, so
-  // we dont have to pay any other fee.
+```java
+public class StaircaseFee {
 
-  //please note that dp[] has one extra element to handle the 0th step
-  for (let i = 2; i < fee.length; i++) {
-    dp[i + 1] = Math.min(
-      fee[i] + dp[i],
-      fee[i - 1] + dp[i - 1],
-      fee[i - 2] + dp[i - 2]
-    );
-  }
+    public int findMinFee(int[] fee) {
+        int n = fee.length;
+        // dp[i] will store the minimum fee to reach step 'i'
+        int[] dp = new int[n + 1];
 
-  return dp[fee.length];
+        // If there are no steps, we don't have to pay any fee
+        dp[0] = 0; 
+        
+        // Only one step, so we have to pay its fee (fee[0])
+        dp[1] = fee[0];
+        
+        // For 2 steps, we start at step 0, pay its fee, and can jump to the top
+        if (n >= 2) {
+            dp[2] = fee[0];
+        }
+
+        // Fill the dp table for the remaining steps
+        for (int i = 2; i < n; i++) {
+            dp[i + 1] = Math.min(
+                fee[i] + dp[i], 
+                Math.min(fee[i - 1] + dp[i - 1], fee[i - 2] + dp[i - 2])
+            );
+        }
+
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        StaircaseFee sf = new StaircaseFee();
+
+        int[] fee1 = {1, 2, 5, 2, 1, 2};
+        System.out.println("Minimum fee needed: ---> " + sf.findMinFee(fee1));
+
+        int[] fee2 = {2, 3, 4, 5};
+        System.out.println("Minimum fee needed: ---> " + sf.findMinFee(fee2));
+    }
 }
-
-console.log(`Minimum fee needed: ---> ${findMinFee([1, 2, 5, 2, 1, 2])}`);
-console.log(`Minimum fee needed: ---> ${findMinFee([2, 3, 4, 5])}`);
 ```
 
 - The above solution has <b>time and space complexity</b> of `O(n)`.
@@ -3255,25 +3490,38 @@ For every house `i`, we have two options:
 
 The thief should choose the one with the maximum amount from the above two options. So our algorithm will look like this:
 
-```js
-function findMaxSteal(wealth) {
-  function findMaxStealRecursive(wealth, currIndex) {
-    if (currIndex >= wealth.length) return 0;
+```java
+public class HouseThief {
 
-    //steal from the current house and skip one to steal from the next house
-    const stealCurr =
-      wealth[currIndex] + findMaxStealRecursive(wealth, currIndex + 2);
+    public int findMaxSteal(int[] wealth) {
+        return findMaxStealRecursive(wealth, 0);
+    }
 
-    //skip current house to steal from the adjacent house
-    const skipCurr = findMaxStealRecursive(wealth, currIndex + 1);
+    private int findMaxStealRecursive(int[] wealth, int currIndex) {
+        // Base case: if we have passed all houses
+        if (currIndex >= wealth.length) {
+            return 0;
+        }
 
-    return Math.max(stealCurr, skipCurr);
-  }
-  return findMaxStealRecursive(wealth, 0);
+        // Steal from the current house and skip one to steal from the next-next house
+        int stealCurr = wealth[currIndex] + findMaxStealRecursive(wealth, currIndex + 2);
+
+        // Skip current house to steal from the adjacent house
+        int skipCurr = findMaxStealRecursive(wealth, currIndex + 1);
+
+        return Math.max(stealCurr, skipCurr);
+    }
+
+    public static void main(String[] args) {
+        HouseThief ht = new HouseThief();
+
+        int[] wealth1 = {2, 5, 1, 3, 6, 2, 4};
+        System.out.println("Maximum stealing: ---> " + ht.findMaxSteal(wealth1));
+
+        int[] wealth2 = {2, 10, 14, 8, 1};
+        System.out.println("Maximum stealing: ---> " + ht.findMaxSteal(wealth2));
+    }
 }
-
-console.log(`Maximum stealing: ---> ${findMaxSteal([2, 5, 1, 3, 6, 2, 4])}`);
-console.log(`Maximum stealing: ---> ${findMaxSteal([2, 10, 14, 8, 1])}`);
 ```
 
 - The <b>time complexity</b> of the above algorithm is exponential `O(2ⁿ)`. The <b>space complexity</b> is `O(n)` which is used to store the <i>recursion stack</i>.
@@ -3282,28 +3530,48 @@ console.log(`Maximum stealing: ---> ${findMaxSteal([2, 10, 14, 8, 1])}`);
 
 To resolve <i>overlapping subproblems</i>, we can use an array to store the already solved <i>subproblems</i>.
 
-```js
-function findMaxSteal(wealth) {
-  const dp = [];
+```java
+public class HouseThief {
 
-  function findMaxStealRecursive(wealth, currIndex) {
-    if (currIndex >= wealth.length) return 0;
+    public int findMaxSteal(int[] wealth) {
+        // Use an Integer wrapper array so we can check for 'null'
+        Integer[] dp = new Integer[wealth.length];
+        return findMaxStealRecursive(dp, wealth, 0);
+    }
 
-    //steal from the current house and skip one to steal from the next house
-    const stealCurr =
-      wealth[currIndex] + findMaxStealRecursive(wealth, currIndex + 2);
+    private int findMaxStealRecursive(Integer[] dp, int[] wealth, int currIndex) {
+        // Base case: if we have passed all houses
+        if (currIndex >= wealth.length) {
+            return 0;
+        }
 
-    //skip current house to steal from the adjacent house
-    const skipCurr = findMaxStealRecursive(wealth, currIndex + 1);
+        // Check if we have already solved this subproblem
+        if (dp[currIndex] != null) {
+            return dp[currIndex];
+        }
 
-    dp[currIndex] = Math.max(stealCurr, skipCurr);
-    return dp[currIndex];
-  }
-  return findMaxStealRecursive(wealth, 0);
+        // Option 1: Steal from the current house and move to currIndex + 2
+        int stealCurr = wealth[currIndex] + findMaxStealRecursive(dp, wealth, currIndex + 2);
+
+        // Option 2: Skip current house and move to the adjacent house
+        int skipCurr = findMaxStealRecursive(dp, wealth, currIndex + 1);
+
+        // Save the result in our memoization table
+        dp[currIndex] = Math.max(stealCurr, skipCurr);
+
+        return dp[currIndex];
+    }
+
+    public static void main(String[] args) {
+        HouseThief ht = new HouseThief();
+
+        int[] wealth1 = {2, 5, 1, 3, 6, 2, 4};
+        System.out.println("Maximum stealing: ---> " + ht.findMaxSteal(wealth1));
+
+        int[] wealth2 = {2, 10, 14, 8, 1};
+        System.out.println("Maximum stealing: ---> " + ht.findMaxSteal(wealth2));
+    }
 }
-
-console.log(`Maximum stealing: ---> ${findMaxSteal([2, 5, 1, 3, 6, 2, 4])}`);
-console.log(`Maximum stealing: ---> ${findMaxSteal([2, 10, 14, 8, 1])}`);
 ```
 
 ### Bottom-up Dynamic Programming
@@ -3312,24 +3580,43 @@ Let’s try to populate our `dp[]` array from the above solution, working in a <
 
 Here is the code for our <b>bottom-up dynamic programming approach</b>:
 
-```js
-function findMaxSteal(wealth) {
-  //+1 to handle the 0 index house
-  const dp = Array(wealth.length + 1).fill(0);
-  //if there are no houses, the thief can't steal anything
-  //only one house, so the thief will only be able to steal from that single house
-  dp[1] = wealth[1];
+```java
+public class HouseThief {
 
-  //please note that dp[] has one extra to handle house zero
-  for (let i = 1; i < wealth.length; i++) {
-    dp[i + 1] = Math.max(wealth[i] + dp[i - 1], dp[i]);
-  }
+    public int findMaxSteal(int[] wealth) {
+        if (wealth == null || wealth.length == 0) return 0;
+        
+        int n = wealth.length;
+        // dp[i] will store the maximum wealth stolen from the first 'i' houses
+        int[] dp = new int[n + 1];
 
-  return dp[wealth.length];
+        // Base case: 0 houses = 0 wealth
+        dp[0] = 0; 
+        
+        // Only one house: the thief steals from that house (wealth[0])
+        dp[1] = wealth[0];
+
+        // Fill the dp table
+        // wealth[i] refers to the current house wealth
+        // dp[i-1] is the max wealth excluding the current house
+        // dp[i] is the max wealth up to the previous house
+        for (int i = 1; i < n; i++) {
+            dp[i + 1] = Math.max(wealth[i] + dp[i - 1], dp[i]);
+        }
+
+        return dp[n];
+    }
+
+    public static void main(String[] args) {
+        HouseThief ht = new HouseThief();
+
+        int[] wealth1 = {2, 5, 1, 3, 6, 2, 4};
+        System.out.println("Maximum stealing: ---> " + ht.findMaxSteal(wealth1));
+
+        int[] wealth2 = {2, 10, 14, 8, 1};
+        System.out.println("Maximum stealing: ---> " + ht.findMaxSteal(wealth2));
+    }
 }
-
-console.log(`Maximum stealing: ---> ${findMaxSteal([2, 5, 1, 3, 6, 2, 4])}`);
-console.log(`Maximum stealing: ---> ${findMaxSteal([2, 10, 14, 8, 1])}`);
 ```
 
 - The above solution has <b>time and space complexity</b> of `O(n)`.
@@ -3338,21 +3625,38 @@ console.log(`Maximum stealing: ---> ${findMaxSteal([2, 10, 14, 8, 1])}`);
 
 We can optimize the space used in our previous solution. We don’t need to store all the previous numbers up to `n`, as we only need two previous numbers to calculate the next number in the <b>sequence</b>. Let’s use this fact to further improve our solution:
 
-```js
-function findMaxSteal(wealth) {
-  if (wealth.length === 0) return 0;
+```java
+public class HouseThief {
 
-  let house1 = 0;
-  let house2 = wealth[0];
-  for (let i = 1; i < wealth.length; i++) {
-    [house1, house2] = [house2, Math.max(house1 + wealth[i], house2)];
-  }
+    public int findMaxSteal(int[] wealth) {
+        if (wealth == null || wealth.length == 0) return 0;
 
-  return house2;
+        // house1 represents dp[i-1]
+        int house1 = 0;
+        // house2 represents dp[i]
+        int house2 = wealth[0];
+
+        for (int i = 1; i < wealth.length; i++) {
+            // Since Java doesn't support array destructuring for swapping,
+            // we use a temporary variable to hold the new maximum.
+            int temp = Math.max(house1 + wealth[i], house2);
+            house1 = house2;
+            house2 = temp;
+        }
+
+        return house2;
+    }
+
+    public static void main(String[] args) {
+        HouseThief ht = new HouseThief();
+
+        int[] wealth1 = {2, 5, 1, 3, 6, 2, 4};
+        System.out.println("Maximum stealing: ---> " + ht.findMaxSteal(wealth1));
+
+        int[] wealth2 = {2, 10, 14, 8, 1};
+        System.out.println("Maximum stealing: ---> " + ht.findMaxSteal(wealth2));
+    }
 }
-
-console.log(`Maximum stealing: ---> ${findMaxSteal([2, 5, 1, 3, 6, 2, 4])}`);
-console.log(`Maximum stealing: ---> ${findMaxSteal([2, 10, 14, 8, 1])}`);
 ```
 
 - The above solution has a <b>time complexity</b> of `O(n)` and a constant <b>space complexity</b> `O(1)`.
